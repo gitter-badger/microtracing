@@ -18,6 +18,16 @@ public class Span{
 	public static final Set<String> SPAN_HEADERS = new HashSet<String>(
 			Arrays.asList(PARENT_ID_NAME, TRACE_ID_NAME,SPAN_ID_NAME, SPAN_NAME_NAME));
 	
+
+	public static final String SPAN_START = "SPAN_START";
+	public static final String SPAN_END = "SPAN_END";
+	
+	public static final String CLIENT_RECV = "cr";
+	public static final String CLIENT_SEND = "cs";
+	public static final String SERVER_RECV = "sr";
+	public static final String SERVER_SEND = "ss";
+	
+	
 	private String traceId;
 	private String spanId;
 	private String name;
@@ -87,19 +97,7 @@ public class Span{
 		this.name = operationName;
 		this.parentSpan = parentSpan;
 	}
-	
-	public void start(){
-		startTime = System.currentTimeMillis();
-		Tracer.getTracer().setCurrentSpan(this);
-		log.info("SPAN_START " + this.toString());
-	}
-	
-	public void finish(){
-		endTime = System.currentTimeMillis();
-		log.info("SPAN_END spanId=" +this.spanId + " duration=" + (endTime-startTime) );
-	}
-	
-		
+
 	public Span createChildSpan(String operationName){
 		Span child = new Span(this.traceId, this, null, operationName);
 		childSpans.add(child);
@@ -118,13 +116,35 @@ public class Span{
 	public Set<Span> getChildSpans() {
 		return childSpans;
 	}
-
-	public boolean equals(Span span) {
-		if (span != null && span.getTraceId()!=null && span.getTraceId().equals(this.traceId) && span.getSpanId()!=null && span.getSpanId().equals(this.getSpanId()) ){
+	
+	
+	public void start(){
+		startTime = System.currentTimeMillis();
+		Tracer.getTracer().setCurrentSpan(this);
+		log.info(SPAN_START + " " + this.toString());
+	}
+	
+	public void finish(){
+		endTime = System.currentTimeMillis();
+		log.info(SPAN_END + " spanId=" +this.spanId + " duration=" + (endTime-startTime) );
+	}
+	
+	public void logEvent(String event) {
+		log.info(event);
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == this) {
 			return true;
-		}else {
-			return false;
 		}
+		if (o instanceof Span) {
+			Span span = (Span) o;		
+			return (span != null 
+					&& span.getTraceId()!=null && span.getTraceId().equals(this.traceId) 
+					&& span.getSpanId()!=null && span.getSpanId().equals(this.getSpanId()) );
+		}
+		return false;
 	}
 	
 	

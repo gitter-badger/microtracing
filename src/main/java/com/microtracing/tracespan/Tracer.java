@@ -1,13 +1,12 @@
 package com.microtracing.tracespan;
 
 import java.util.UUID;
-import java.util.Map;
 public class Tracer{
 
 	private String traceId;
 
 	private Span clientSpan;
-	private Span currentThreadRootSpan;
+	private Span threadRootSpan;
 	private Span currentSpan;
 	
 	
@@ -17,7 +16,7 @@ public class Tracer{
 
 	public void setClientSpan(Span span) {
 		this.clientSpan = span;
-		this.currentThreadRootSpan.setParentSpan(span);
+		this.threadRootSpan.setParentSpan(span);
 	}
 
 	public Span getClientSpan() {
@@ -40,8 +39,8 @@ public class Tracer{
 
 	public Tracer(String traceId){
 		this.traceId = traceId;
-		this.currentThreadRootSpan = new Span(traceId, null, null, Thread.currentThread().getName());
-		this.currentSpan = this.currentThreadRootSpan;
+		this.threadRootSpan = new Span(traceId, null, null, Thread.currentThread().getName());
+		this.currentSpan = this.threadRootSpan;
 	}
 	
 	
@@ -67,12 +66,17 @@ public class Tracer{
 		return getTracer(null);
 	}
 	
-	public boolean equals(Tracer tracer) {
-		if (tracer != null && tracer.getTraceId()!=null && tracer.getTraceId().equals(this.traceId)  ){
+	@Override
+	public boolean equals(Object o) {
+		if (o == this) {
 			return true;
-		}else {
-			return false;
 		}
+		if (o instanceof Span) {
+			Tracer tracer = (Tracer) o;	
+			return (tracer != null && tracer.getTraceId()!=null 
+					&& tracer.getTraceId().equals(this.traceId)  );
+		}
+		return false;
 	}
 			
 }

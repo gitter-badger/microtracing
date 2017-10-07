@@ -4,12 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.microtracing.tracespan.Span;
-import com.microtracing.tracespan.SpanInterceptor;
+import com.microtracing.tracespan.ClientSpanInterceptor;
 
 /*
  * client side injector
  */
-public class HttpURLConnectionInterceptor implements SpanInterceptor<HttpURLConnection, HttpURLConnection>{
+public class HttpURLConnectionInterceptor implements ClientSpanInterceptor<HttpURLConnection, HttpURLConnection>{
 	
 	/**
 	 * extract server span from urlconnection response 

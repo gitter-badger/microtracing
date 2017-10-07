@@ -6,14 +6,14 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.microtracing.tracespan.ServerSpanInterceptor;
 import com.microtracing.tracespan.Span;
-import com.microtracing.tracespan.SpanInterceptor;
 import com.microtracing.tracespan.Tracer;
 
 /*
  * server side injector
  */
-public class HttpServletInterceptor  implements SpanInterceptor<HttpServletRequest,HttpServletResponse>{
+public class HttpServletInterceptor  implements ServerSpanInterceptor<HttpServletRequest,HttpServletResponse>{
 
 	/**
 	 * extract client span from request 
