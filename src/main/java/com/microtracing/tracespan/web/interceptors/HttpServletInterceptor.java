@@ -1,4 +1,4 @@
-package com.microtracing.tracespan.interceptors;
+package com.microtracing.tracespan.web.interceptors;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +19,9 @@ public class HttpServletInterceptor  implements ServerSpanInterceptor<HttpServle
 	 * extract client span from request 
 	 */
 	public Span extract(HttpServletRequest req){
+		if (req == null || req.getHeader(Span.SPAN_ID_NAME) == null)
+			return null;
+		
 		Map<String,String> carrier = new HashMap<String,String>();
 		for (String headerName : Span.SPAN_HEADERS) {
 			if (req.getHeader(headerName) != null)

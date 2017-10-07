@@ -40,12 +40,19 @@ public class Tracer{
 	public Tracer(String traceId){
 		this.traceId = traceId;
 		this.threadRootSpan = new Span(traceId, null, null, Thread.currentThread().getName());
+		this.threadRootSpan.start();
 		this.currentSpan = this.threadRootSpan;
 	}
 	
 	
 	public Span createSpan(String operationName){
 		Span span = this.currentSpan.createChildSpan(operationName);
+		return span;
+	}
+	
+	public Span startSpan(String operationName) {
+		Span span = createSpan(operationName);
+		span.start();
 		return span;
 	}
 	

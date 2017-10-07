@@ -1,11 +1,14 @@
 package com.microtracing.tracespan;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 public class Span{
 	private static final Logger log = Logger.getLogger(Span.class.getName());
@@ -19,13 +22,16 @@ public class Span{
 			Arrays.asList(PARENT_ID_NAME, TRACE_ID_NAME,SPAN_ID_NAME, SPAN_NAME_NAME));
 	
 
-	public static final String SPAN_START = "SPAN_START";
-	public static final String SPAN_END = "SPAN_END";
+	public static final String SPAN_START = "SPAN_START";  
+	public static final String SPAN_END = "SPAN_END";  
 	
 	public static final String CLIENT_RECV = "cr";
 	public static final String CLIENT_SEND = "cs";
 	public static final String SERVER_RECV = "sr";
 	public static final String SERVER_SEND = "ss";
+	
+	public static final Set<String> ONE_OFF_EVENTS = new HashSet<String>(
+			Arrays.asList(SPAN_START, CLIENT_SEND, SERVER_SEND)); // SPAN_END, CLIENT_RECV, SERVER_RECV use the last event time
 	
 	
 	private String traceId;
@@ -39,6 +45,8 @@ public class Span{
 	
 	private long startTime;
 	private long endTime;
+	
+	private List<SpanEvent> events = new ArrayList<SpanEvent>();
 
 	
 	public void setTraceId(String traceId) {
@@ -119,18 +127,45 @@ public class Span{
 	
 	
 	public void start(){
-		startTime = System.currentTimeMillis();
+		if (startTime==0) startTime = System.currentTimeMillis();
 		Tracer.getTracer().setCurrentSpan(this);
-		log.info(SPAN_START + " " + this.toString());
+		logFormatEvent(SPAN_START,this.toString());
 	}
 	
 	public void finish(){
 		endTime = System.currentTimeMillis();
-		log.info(SPAN_END + " spanId=" +this.spanId + " duration=" + (endTime-startTime) );
+		logFormatEvent(SPAN_END,"spanId=%1$s duration=%2$s", this.spanId, (endTime-startTime) );
 	}
 	
 	public void logEvent(String event) {
-		log.info(event);
+		logFormatEvent(event, null);
+	}
+	
+	public void logFormatEvent(String event, String format, Object... params) {
+		if (ONE_OFF_EVENTS.contains(event)) {
+			for (SpanEvent e : events) {
+				if (event.equals(e.getEvent())) {
+					if (log.isLoggable(Level.FINE)) {
+						log.fine(event + " was already annotated, will not do it again");
+					}
+					return;
+				}
+			}
+		}
+		SpanEvent e = new SpanEvent(System.currentTimeMillis(), event);
+		events.add(e);
+		
+		if (log.isLoggable(Level.INFO)) {
+			StringBuffer sb = new StringBuffer(e.toString());
+			if (format != null) {
+				if (params != null) {
+					sb.append(" ").append(String.format(format, params));
+				} else {
+					sb.append(" ").append(format);
+				}
+			}
+			log.info(sb.toString());
+		}
 	}
 	
 	@Override
@@ -158,12 +193,12 @@ public class Span{
 	}
 	
 	public String toString() {
-		StringBuffer sb = new StringBuffer("Span(");
-		sb.append("spanId=").append(this.spanId).append(" ");
-		sb.append("traceId=").append(this.traceId).append(" ");
-		if(this.parentSpan!=null) sb.append("parentId=").append(this.getParentSpanId()).append(" ");
-		sb.append("spanName=").append(this.name).append(" ");
-		sb.append(")");
+		StringBuffer sb = new StringBuffer("Span{")   ;
+		sb.append("spanId=").append(this.spanId).append(", ");
+		sb.append("traceId=").append(this.traceId).append(", ");
+		if(this.parentSpan!=null) sb.append("parentId=").append(this.getParentSpanId()).append(", ");
+		sb.append("spanName=").append(this.name);
+		sb.append("}");
 		return sb.toString();
 	}
 	
@@ -171,7 +206,7 @@ public class Span{
 		String traceId = carrier.get(Span.TRACE_ID_NAME);
 		String parentId = carrier.get(Span.PARENT_ID_NAME);
 		String spanId = carrier.get(Span.SPAN_ID_NAME);
-		String name = carrier.get(Span.SPAN_NAME_NAME);		
+		String name = carrier.get(Span.SPAN_NAME_NAME);	
 		
 		Span parentSpan = parentId==null?null:new Span(traceId,null,parentId, null);
 		Span span = new Span(traceId,parentSpan, spanId, name);

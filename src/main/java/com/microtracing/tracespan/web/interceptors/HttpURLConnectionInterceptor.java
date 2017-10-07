@@ -1,4 +1,4 @@
-package com.microtracing.tracespan.interceptors;
+package com.microtracing.tracespan.web.interceptors;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +15,9 @@ public class HttpURLConnectionInterceptor implements ClientSpanInterceptor<HttpU
 	 * extract server span from urlconnection response 
 	 */
 	public  Span extract(HttpURLConnection conn){
+		if (conn == null || conn.getHeaderField(Span.SPAN_ID_NAME) == null)
+			return null;
+		
 		Map<String,String> carrier = new HashMap<String,String>();
 		for (String headerName : Span.SPAN_HEADERS) {
 			if (conn.getHeaderField(headerName) != null)
