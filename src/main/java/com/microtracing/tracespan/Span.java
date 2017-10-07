@@ -51,7 +51,7 @@ public class Span{
 	private long startTime;
 	private long endTime;
 	
-	private List<SpanEvent> events = new ArrayList<SpanEvent>();
+	private List<SpanEvent> events = new ArrayList<SpanEvent>(6);
 
 	
 	public Span(String traceId, Span parentSpan, String spanId, String operationName){
@@ -168,7 +168,7 @@ public class Span{
 		if (ONE_OFF_EVENTS.contains(event)) {
 			for (SpanEvent e : events) {
 				if (e.getEvent().equals(event)) {
-					if (msg!=null) e.setMsg(e.getMsg() + " " + msg);
+					//if (msg!=null) e.setMsg(e.getMsg() + " " + msg);
 					logger.debug(e + " was already annotated, will not do it again");
 					return ;
 				}

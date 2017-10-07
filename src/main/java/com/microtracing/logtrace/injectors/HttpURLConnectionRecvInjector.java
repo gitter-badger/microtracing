@@ -20,8 +20,8 @@ public class HttpURLConnectionRecvInjector implements ClassInjector,CallInjector
       + "     _$span = null;  \n"
       + "   } \n"
       + "   com.microtracing.tracespan.web.HttpURLConnectionInterceptor _$inter = new com.microtracing.tracespan.web.HttpURLConnectionInterceptor(); \n"
-      + "  \n"
-      + "  try{ \n";
+      + "   \n"
+      + "   try{ \n";
 	
 	private final static  String methodCallAfter  
 	  = "    if(_$span != null) _$span.logEvent(_$span.CLIENT_RECV);\n"
