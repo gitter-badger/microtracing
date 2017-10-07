@@ -7,8 +7,9 @@ import com.microtracing.logtrace.LogTransformer;
 
 
 public class HttpURLConnectionRecvInjector implements ClassInjector,CallInjector{
-	private static final org.apache.log4j.Logger logger =  org.apache.log4j.LogManager.getLogger(HttpURLConnectionRecvInjector.class);
-	
+	//private static final org.apache.log4j.Logger logger =  org.apache.log4j.LogManager.getLogger(HttpURLConnectionRecvInjector.class);
+	private static final java.util.logging.Logger logger =  java.util.logging.Logger.getLogger(HttpURLConnectionRecvInjector.class.getName());
+
 	private final static String[] classFields = new String[]{
 			"private final static java.util.logging.Logger _$logger = java.util.logging.Logger.getLogger(\"%1$s\");"
 		};
@@ -41,14 +42,14 @@ public class HttpURLConnectionRecvInjector implements ClassInjector,CallInjector
 	@Override
 	public  String getMethodCallBefore(String className, String methodName){
 		String s = String.format(methodCallBefore,className,methodName);
-		logger.debug(s);				
+		logger.fine(s);				
 		return s;
 	}
 	
 	@Override
 	public  String getMethodCallAfter(String className, String methodName){
 		String s = String.format(methodCallAfter,className,methodName);
-		logger.debug(s);				
+		logger.fine(s);				
 		return s;
 	}	
 	

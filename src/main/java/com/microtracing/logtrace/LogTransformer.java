@@ -10,7 +10,6 @@ import com.microtracing.logtrace.injectors.HttpURLConnectionRecvInjector;
 import com.microtracing.logtrace.injectors.HttpURLConnectionSendInjector;
 import com.microtracing.logtrace.injectors.LogInjector;
 import com.microtracing.logtrace.injectors.TimerInjector;
-import com.microtracing.tracespan.Span;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -21,7 +20,8 @@ import javassist.NotFoundException;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
 public class LogTransformer  implements ClassFileTransformer{
-	private static final org.apache.log4j.Logger logger =  org.apache.log4j.LogManager.getLogger(LogTransformer.class);
+	//private static final org.apache.log4j.Logger logger =  org.apache.log4j.LogManager.getLogger(LogTransformer.class);
+	private static final java.util.logging.Logger logger =  java.util.logging.Logger.getLogger(LogTransformer.class.getName());
 	
 	private LogTraceConfig config;
 	
@@ -112,11 +112,11 @@ public class LogTransformer  implements ClassFileTransformer{
 			String fin = injector.getMethodProcessFinally();
 			if (fin!=null && fin.trim().length()>0) ctmethod.insertAfter(fin, true);
 		}catch(NotFoundException ne){
-			logger.warn(ne + " method: " + ctmethod + " injector: " + injector, ne);
+			logger.warning(ne + " method: " + ctmethod + " injector: " + injector);
 		}catch(CannotCompileException ce){
-			logger.warn(ce + " method: " + ctmethod + " injector: " + injector, ce);
+			logger.warning(ce + " method: " + ctmethod + " injector: " + injector);
 		}catch(Exception ex){
-			logger.warn(ex + " method: " + ctmethod + " injector: " + injector, ex);
+			logger.warning(ex + " method: " + ctmethod + " injector: " + injector);
 		}
 		return ctmethod;
 	}	
