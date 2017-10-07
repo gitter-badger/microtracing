@@ -1,34 +1,45 @@
 package com.starsloader.logtrace;
-import java.io.BufferedReader;  
-import java.io.IOException;  
-import java.io.InputStreamReader;  
-import java.io.PrintWriter;  
-import java.net.HttpURLConnection;  
-import java.net.URL;  
-import java.util.HashMap;  
-import java.util.Iterator;  
-import java.util.Map;  
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import com.microtracing.tracespan.Span;
+import com.microtracing.tracespan.Tracer;  
 
 public class TimeTest {
-	private static java.util.logging.Logger log = java.util.logging.Logger.getLogger(TimeTest.class.getName()); 	
+	//private static java.util.logging.Logger log = java.util.logging.Logger.getLogger(TimeTest.class.getName());
+	private static final org.apache.log4j.Logger logger =  org.apache.log4j.LogManager.getLogger(Span.class);
     public static void main(String[] args) throws Exception{
-        sayHello();
-		httpConnect();
+    	Tracer tracer = Tracer.getTracer();
+    	Span span = tracer.getCurrentSpan();
+    	span.start();
+    	try {
+	        sayHello();
+			httpConnect();
+    	}finally {
+    		span.stop();
+    	}
     }
 
     public static void sayHello() {
         try {
              Thread.sleep(500);
-             log.info("hello world!" );
+             logger.info("hello world!" );
 			 
         } catch (InterruptedException e) {
              e.printStackTrace();
         }
-		log.info(doSomething());
+		logger.info(doSomething());
    }
 
    public static void httpConnect() throws Exception{
-        String requestUrl = "http://baidu22x2.com";  
+        String requestUrl = "http://baidu.com";  
         Map<String, Object> requestParamsMap = new HashMap<String, Object>();  
         requestParamsMap.put("areaCode", "001");  
         requestParamsMap.put("areaCode1", "中国");  
@@ -70,18 +81,19 @@ public class TimeTest {
             // 根据ResponseCode判断连接是否成功  
             int responseCode = httpURLConnection.getResponseCode();  
             if (responseCode != 200) {  
-                log.warning(" Error===" + responseCode);  
+                logger.warn(" Error===" + responseCode);  
             } else {  
-                log.info("Post Success!");  
+                logger.info("Post Success!");  
             }  
             // 定义BufferedReader输入流来读取URL的ResponseData  
             bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));  
             String line;  
             while ((line = bufferedReader.readLine()) != null) {  
-                responseResult.append("/n").append(line);  
+                responseResult.append("\n").append(line);  
             }  
+            logger.info(responseResult);
         } catch (Exception e) {  
-            log.warning("send post request error!" + e);  
+            logger.warn("send post request error!" + e);  
 			throw e;
         } finally {  
             if (httpURLConnection!=null) httpURLConnection.disconnect();  
@@ -105,7 +117,7 @@ public class TimeTest {
        } catch (InterruptedException e) {
            e.printStackTrace();
        }
-       log.info("gen uuid");
+       logger.info("gen uuid");
 	   return java.util.UUID.randomUUID().toString();
    }	   
 }

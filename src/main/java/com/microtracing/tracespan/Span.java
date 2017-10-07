@@ -8,10 +8,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.apache.log4j.MDC;
+
+
 public class Span{
-	private static final Logger log = Logger.getLogger(Span.class.getName());
+	private final static String FQCN = Span.class.getName();
+	
+	//private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Span.class.getName());
+	private static final org.apache.log4j.Logger logger =  org.apache.log4j.LogManager.getLogger(Span.class);  
 	
 	public static final String TRACE_ID_NAME = "X-B3-TraceId";
 	public static final String SPAN_ID_NAME = "X-B3-SpanId";
@@ -48,6 +53,13 @@ public class Span{
 	
 	private List<SpanEvent> events = new ArrayList<SpanEvent>();
 
+	
+	public Span(String traceId, Span parentSpan, String spanId, String operationName){
+		this.traceId = traceId;
+		this.spanId = spanId == null?genSpanId():spanId;
+		this.name = operationName;
+		this.parentSpan = parentSpan;
+	}
 	
 	public void setTraceId(String traceId) {
 		this.traceId = traceId;
@@ -99,12 +111,6 @@ public class Span{
 		return uuid[0]+uuid[3]; // 12 chars
 	}	
 	
-	public Span(String traceId, Span parentSpan, String spanId, String operationName){
-		this.traceId = traceId;
-		this.spanId = spanId == null?genSpanId():spanId;
-		this.name = operationName;
-		this.parentSpan = parentSpan;
-	}
 
 	public Span createChildSpan(String operationName){
 		Span child = new Span(this.traceId, this, null, operationName);
@@ -127,14 +133,22 @@ public class Span{
 	
 	
 	public void start(){
-		if (startTime==0) startTime = System.currentTimeMillis();
 		Tracer.getTracer().setCurrentSpan(this);
-		logFormatEvent(SPAN_START,this.toString());
+		if (this.startTime!=0 || this.isRemote()) {
+			logger.debug(this.spanId + " span was already started, will not do it again");
+		}else {
+			startTime = System.currentTimeMillis();
+			logFormatEvent(SPAN_START,this.toString());
+		}
 	}
 	
-	public void finish(){
+	public void stop(){
+		if (this.startTime==0) {
+			logger.warn(this.spanId + " span was not started!");
+		}
 		endTime = System.currentTimeMillis();
-		logFormatEvent(SPAN_END,"spanId=%1$s duration=%2$s", this.spanId, (endTime-startTime) );
+		logFormatEvent(SPAN_END,"spanId=%1$s name=%2$s duration=%3$s", this.spanId, this.name, (endTime-startTime) );
+		Tracer.getTracer().setCurrentSpan(this.parentSpan);
 	}
 	
 	public void logEvent(String event) {
@@ -142,30 +156,35 @@ public class Span{
 	}
 	
 	public void logFormatEvent(String event, String format, Object... params) {
+		String msg = null;
+		if (format != null) {
+			if (params != null) {
+				msg = String.format(format, params);
+			} else {
+				msg = format;
+			}
+		}
+		
 		if (ONE_OFF_EVENTS.contains(event)) {
 			for (SpanEvent e : events) {
-				if (event.equals(e.getEvent())) {
-					if (log.isLoggable(Level.FINE)) {
-						log.fine(event + " was already annotated, will not do it again");
-					}
-					return;
+				if (e.getEvent().equals(event)) {
+					if (msg!=null) e.setMsg(e.getMsg() + " " + msg);
+					logger.debug(e + " was already annotated, will not do it again");
+					return ;
 				}
 			}
 		}
-		SpanEvent e = new SpanEvent(System.currentTimeMillis(), event);
+		SpanEvent e = new SpanEvent(System.currentTimeMillis(), event, msg);
 		events.add(e);
-		
-		if (log.isLoggable(Level.INFO)) {
-			StringBuffer sb = new StringBuffer(e.toString());
-			if (format != null) {
-				if (params != null) {
-					sb.append(" ").append(String.format(format, params));
-				} else {
-					sb.append(" ").append(format);
-				}
-			}
-			log.info(sb.toString());
-		}
+		log(e.toString());
+	}
+	
+	private void log(String log) {
+		MDC.put(Span.TRACE_ID_NAME, this.traceId);
+		MDC.put(Span.SPAN_ID_NAME, this.spanId);
+		if (logger.isInfoEnabled()) {
+			logger.log(FQCN, org.apache.log4j.Level.INFO, log, null);
+		}		
 	}
 	
 	@Override
@@ -194,13 +213,17 @@ public class Span{
 	
 	public String toString() {
 		StringBuffer sb = new StringBuffer("Span{")   ;
-		sb.append("spanId=").append(this.spanId).append(", ");
-		sb.append("traceId=").append(this.traceId).append(", ");
-		if(this.parentSpan!=null) sb.append("parentId=").append(this.getParentSpanId()).append(", ");
-		sb.append("spanName=").append(this.name);
+		sb.append("spanId=").append(this.spanId);
+		sb.append(", spanName=").append(this.name);
+		sb.append(", traceId=").append(this.traceId);
+		if(this.parentSpan!=null) sb.append(", parentId=").append(this.getParentSpanId());
 		sb.append("}");
 		return sb.toString();
 	}
+	
+	
+	
+	
 	
 	public static Span buildSpan(Map<String, String> carrier) {
 		String traceId = carrier.get(Span.TRACE_ID_NAME);

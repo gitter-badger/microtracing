@@ -1,13 +1,29 @@
 package com.microtracing.tracespan;
 
 import java.util.UUID;
-public class Tracer{
+import org.apache.log4j.Logger;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.MDC;  
 
+public class Tracer{
+	private static final Logger logger = LogManager.getLogger(Tracer.class);  
+	
 	private String traceId;
 
 	private Span clientSpan;
 	private Span threadRootSpan;
 	private Span currentSpan;
+	
+	public Tracer(String traceId){
+		this.traceId = traceId;
+		this.threadRootSpan = new Span(traceId, null, null, Thread.currentThread().getName());
+		setCurrentSpan(this.threadRootSpan);
+	}
+	
+	private static String genTraceId(){
+		String[]  uuid = UUID.randomUUID().toString().split("-"); //8-4-4-4-12
+		return uuid[0]+uuid[3]; // 12 chars
+	}
 	
 	
 	public String getTraceId() {
@@ -23,38 +39,33 @@ public class Tracer{
 		return clientSpan;
 	}
 
-	private static String genTraceId(){
-		String[]  uuid = UUID.randomUUID().toString().split("-"); //8-4-4-4-12
-		return uuid[0]+uuid[3]; // 12 chars
-	}
-	
 	
 	public Span getCurrentSpan() {
 		return currentSpan;
 	}
 
 	public void setCurrentSpan(Span currentSpan) {
+		if (currentSpan == null) currentSpan = this.threadRootSpan;
 		this.currentSpan = currentSpan;
+		MDC.put(Span.SPAN_ID_NAME, currentSpan.getSpanId());
 	}
 
-	public Tracer(String traceId){
-		this.traceId = traceId;
-		this.threadRootSpan = new Span(traceId, null, null, Thread.currentThread().getName());
-		this.threadRootSpan.start();
-		this.currentSpan = this.threadRootSpan;
-	}
+	public Span getThreadRootSpan() {
+		return threadRootSpan;
+	} 
 	
+	public void closeThreadRootSpan() {
+		threadRootSpan.stop();
+	}
+
 	
 	public Span createSpan(String operationName){
 		Span span = this.currentSpan.createChildSpan(operationName);
 		return span;
 	}
 	
-	public Span startSpan(String operationName) {
-		Span span = createSpan(operationName);
-		span.start();
-		return span;
-	}
+	
+	
 	
 	
 	private static ThreadLocal<Tracer> tracerLocal = new ThreadLocal<Tracer>();
@@ -65,6 +76,7 @@ public class Tracer{
 			if (traceId == null) traceId = genTraceId();
 			tracer = new Tracer(traceId);
 			tracerLocal.set(tracer);
+			MDC.put(Span.TRACE_ID_NAME, traceId);
 		}
 		return tracer;
 	}

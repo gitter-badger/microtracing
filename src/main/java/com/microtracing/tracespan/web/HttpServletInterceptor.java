@@ -1,4 +1,4 @@
-package com.microtracing.tracespan.web.interceptors;
+package com.microtracing.tracespan.web;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +30,7 @@ public class HttpServletInterceptor  implements ServerSpanInterceptor<HttpServle
 
 		Span clientSpan = Span.buildSpan(carrier);
 		clientSpan.setRemote(true);
+		clientSpan.logEvent(Span.SERVER_RECV);
 		
 		Tracer tracer = Tracer.getTracer(clientSpan.getTraceId());
 		tracer.setClientSpan(clientSpan);

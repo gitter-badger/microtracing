@@ -23,7 +23,12 @@
     	<groupId>javax.servlet</groupId>
     	<artifactId>javax.servlet-api</artifactId>
     	<scope>provided</scope>
-    	<version>3.0.1</version>
+    	<version>3.1.0</version>
+    </dependency>
+    <dependency>
+    	<groupId>log4j</groupId>
+    	<artifactId>log4j</artifactId>
+    	<version>1.2.12</version>
     </dependency>
   </dependencies>
   <build>
@@ -37,6 +42,43 @@
           <target>1.6</target>
         </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.4</version>
+        <configuration>
+          <excludes>
+            <exclude>**/TimeTest.class</exclude>
+          </excludes>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+            </manifest>
+            <manifestEntries>  
+              <Premain-Class>com.microtracing.logtrace.LogAgent</Premain-Class>
+            </manifestEntries>  
+          </archive>
+        </configuration>
+      </plugin>      
+      <plugin>  
+        <groupId>org.apache.maven.plugins</groupId>  
+        <artifactId>maven-dependency-plugin</artifactId>  
+        <version>2.10</version>  
+        <executions>  
+          <execution>  
+            <id>copy-dependencies</id>  
+            <phase>package</phase>  
+            <goals>  
+              <goal>copy-dependencies</goal>  
+            </goals>  
+            <configuration>  
+              <outputDirectory>${project.build.directory}/lib</outputDirectory>  
+            </configuration>  
+          </execution>  
+        </executions>  
+      </plugin>  	  
+
 <!--
       <plugin>  
         <groupId>org.apache.maven.plugins</groupId>  
@@ -67,43 +109,6 @@
         </executions>  
       </plugin>  
 	  -->
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>2.4</version>
-        <configuration>
-          <excludes>
-            <exclude>**/TimeTest.class</exclude>
-            <exclude>**/log4j.properties</exclude>
-          </excludes>
-          <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-            </manifest>
-            <manifestEntries>  
-              <Premain-Class>com.starsloader.logtrace.LogAgent</Premain-Class>
-            </manifestEntries>  
-          </archive>
-        </configuration>
-      </plugin>      
-      <plugin>  
-        <groupId>org.apache.maven.plugins</groupId>  
-        <artifactId>maven-dependency-plugin</artifactId>  
-        <version>2.10</version>  
-        <executions>  
-          <execution>  
-            <id>copy-dependencies</id>  
-            <phase>package</phase>  
-            <goals>  
-              <goal>copy-dependencies</goal>  
-            </goals>  
-            <configuration>  
-              <outputDirectory>${project.build.directory}/lib</outputDirectory>  
-            </configuration>  
-          </execution>  
-        </executions>  
-      </plugin>  	  
       
     </plugins>
   </build>  

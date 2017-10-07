@@ -13,10 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.microtracing.tracespan.Span;
 import com.microtracing.tracespan.Tracer;
-import com.microtracing.tracespan.web.interceptors.HttpServletInterceptor;
 
 public class TraceFilter implements Filter {
-	protected static final String TRACE_REQUEST_ATTR = TraceFilter.class.getName() + ".TRACE";
+	protected static final String TRACER_REQUEST_ATTR = TraceFilter.class.getName() + ".TRACER";
 	
 	private FilterConfig filterConfig;
 	
@@ -31,34 +30,39 @@ public class TraceFilter implements Filter {
 			throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) servletRequest;
 		HttpServletResponse response = (HttpServletResponse) servletResponse;
-		Span span = startSpan(request);
+		Tracer tracer = getTracer(request);
+		Span rootSpan = tracer.getThreadRootSpan();
+		rootSpan.start();
 		try {
-			chain.doFilter(request, new TraceHttpServletResponse(response, span));
+			Span clientSpan = tracer.getClientSpan();
+			if (clientSpan != null) {
+				//log ServerSend event to clientSpan
+				chain.doFilter(request, new TraceHttpServletResponse(response, clientSpan));
+			}else {
+				chain.doFilter(request, response);
+			}
 		} finally {
-			span.finish();
+			rootSpan.stop();
 		}
 	}
-
 	
-	private Span startSpan(HttpServletRequest request) {
-		Span span = (Span)request.getAttribute(TRACE_REQUEST_ATTR);
-		if (span == null) {
+	private Tracer getTracer(HttpServletRequest request) {
+		Tracer tracer = (Tracer)request.getAttribute(TRACER_REQUEST_ATTR);
+		if (tracer == null) {
 			HttpServletInterceptor inter = new HttpServletInterceptor();
 			Span clientSpan = inter.extract(request);
-			Tracer tracer;
 			if (clientSpan != null) {
 				tracer = Tracer.getTracer(clientSpan.getTraceId());
 				tracer.setClientSpan(clientSpan);
 			}else {
 				tracer = Tracer.getTracer();
 			}
-			span = tracer.getCurrentSpan();
 			String name = request.getRequestURL().toString();
+			Span span = tracer.getThreadRootSpan();
 			span.setName(name);
-			span.start();
-			request.setAttribute(TRACE_REQUEST_ATTR, span);
+			request.setAttribute(TRACER_REQUEST_ATTR, tracer);
 		}
-		return span;
+		return tracer;
 	}
 	
 	@Override

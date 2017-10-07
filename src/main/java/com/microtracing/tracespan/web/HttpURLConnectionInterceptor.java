@@ -1,4 +1,4 @@
-package com.microtracing.tracespan.web.interceptors;
+package com.microtracing.tracespan.web;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;

@@ -3,12 +3,14 @@ import java.io.ByteArrayInputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.reflect.Modifier;
-import java.security.ProtectionDomain;
-import java.util.logging.Logger;
+import java.security.ProtectionDomain; 
 
 import com.microtracing.logtrace.injectors.ExceptionInjector;
+import com.microtracing.logtrace.injectors.HttpURLConnectionRecvInjector;
+import com.microtracing.logtrace.injectors.HttpURLConnectionSendInjector;
 import com.microtracing.logtrace.injectors.LogInjector;
 import com.microtracing.logtrace.injectors.TimerInjector;
+import com.microtracing.tracespan.Span;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -19,7 +21,7 @@ import javassist.NotFoundException;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
 public class LogTransformer  implements ClassFileTransformer{
-	private static Logger logger = Logger.getLogger(LogTransformer.class.getName()); 	
+	private static final org.apache.log4j.Logger logger =  org.apache.log4j.LogManager.getLogger(LogTransformer.class);
 	
 	private LogTraceConfig config;
 	
@@ -110,11 +112,11 @@ public class LogTransformer  implements ClassFileTransformer{
 			String fin = injector.getMethodProcessFinally();
 			if (fin!=null && fin.trim().length()>0) ctmethod.insertAfter(fin, true);
 		}catch(NotFoundException ne){
-			logger.warning(ne + " method: " + ctmethod + " injector: " + injector);
+			logger.warn(ne + " method: " + ctmethod + " injector: " + injector, ne);
 		}catch(CannotCompileException ce){
-			logger.warning(ce + " method: " + ctmethod + " injector: " + injector);
+			logger.warn(ce + " method: " + ctmethod + " injector: " + injector, ce);
 		}catch(Exception ex){
-			logger.warning(ex + " method: " + ctmethod + " injector: " + injector);
+			logger.warn(ex + " method: " + ctmethod + " injector: " + injector, ex);
 		}
 		return ctmethod;
 	}	
@@ -144,8 +146,11 @@ public class LogTransformer  implements ClassFileTransformer{
 			TimerInjector timerInjector = new TimerInjector(config);
 			ExceptionInjector exInjector = new ExceptionInjector(config);
 			
+			HttpURLConnectionSendInjector urlSendInjector = new HttpURLConnectionSendInjector(config);
+			HttpURLConnectionRecvInjector urlRecvInjector = new HttpURLConnectionRecvInjector(config);
+			
 			ClassInjector[] classInjectors = new ClassInjector[]{logInjector};
-			CallInjector[] callInjectors = new CallInjector[]{logInjector};
+			CallInjector[] callInjectors = new CallInjector[]{logInjector, urlSendInjector, urlRecvInjector};
 			MethodInjector[] methodInjectors = new MethodInjector[]{logInjector, timerInjector, exInjector};
 			
 			for(ClassInjector injector : classInjectors){
