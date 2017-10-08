@@ -3,17 +3,19 @@ package com.microtracing.tracespan;
 
 
 public class SpanEvent {
-
+	private final String spanId;
 	private final long timestamp;
 	private final String event;
 	private String msg;
 	
-	public SpanEvent(long timestamp,String event) {
-		this(timestamp, event, null);
+	public SpanEvent(String spanId,long timestamp,String event) {
+		this(spanId, timestamp, event, null);
 	}
 	
-	public SpanEvent(long timestamp,String event,String msg) {
+	public SpanEvent(String spanId,long timestamp,String event,String msg) {
 		if (event == null) throw new NullPointerException("event");
+		
+		this.spanId = spanId;
 		this.timestamp = timestamp;
 		this.event = event;
 		this.msg = msg;
@@ -44,7 +46,8 @@ public class SpanEvent {
 		if (o instanceof SpanEvent) {
 			SpanEvent that = (SpanEvent) o;
 			return (this.timestamp == that.timestamp)
-					&& (this.event.equals(that.event));
+					&& (this.event.equals(that.event)
+					&& (this.spanId.equals(that.spanId)));
 		}
 		return false;
 	}
@@ -52,8 +55,9 @@ public class SpanEvent {
 	@Override 
 	public String toString() {
 		StringBuffer sb = new StringBuffer("SpanEvent{")   ;
-		sb.append("timestamp=").append(this.timestamp);
-		sb.append(", event=").append(this.event);
+		sb.append("event=\"").append(this.event).append("\"");
+		sb.append(", spanId=").append(this.spanId);
+		sb.append(", timestamp=").append(this.timestamp);
 		if (this.msg!=null) sb.append(", msg=\"").append(this.msg).append("\"");
 		sb.append("}");
 		return sb.toString();

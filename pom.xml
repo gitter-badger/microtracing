@@ -50,6 +50,7 @@
         <configuration>
           <excludes>
             <exclude>**/TimeTest.class</exclude>
+            <exclude>**/log4j.properties</exclude>
           </excludes>
           <archive>
             <manifest>

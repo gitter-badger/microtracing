@@ -59,6 +59,7 @@ public class Span{
 		this.spanId = spanId == null?genSpanId():spanId;
 		this.name = operationName;
 		this.parentSpan = parentSpan;
+		
 	}
 	
 	public void setTraceId(String traceId) {
@@ -138,7 +139,8 @@ public class Span{
 			logger.debug(this.spanId + " span was already started, will not do it again");
 		}else {
 			startTime = System.currentTimeMillis();
-			logFormatEvent(SPAN_START,this.toString());
+			log(this.toString() + " started.");
+			logEvent(SPAN_START);
 		}
 	}
 	
@@ -174,7 +176,7 @@ public class Span{
 				}
 			}
 		}
-		SpanEvent e = new SpanEvent(System.currentTimeMillis(), event, msg);
+		SpanEvent e = new SpanEvent(this.spanId, System.currentTimeMillis(), event, msg);
 		events.add(e);
 		log(e.toString());
 	}
@@ -213,10 +215,11 @@ public class Span{
 	
 	public String toString() {
 		StringBuffer sb = new StringBuffer("Span{")   ;
-		sb.append("spanId=").append(this.spanId);
-		sb.append(", spanName=").append(this.name);
-		sb.append(", traceId=").append(this.traceId);
+		sb.append("traceId=").append(this.traceId);
+		sb.append(", spanId=").append(this.spanId);
+		sb.append(", spanName=\"").append(this.name).append("\"");
 		if(this.parentSpan!=null) sb.append(", parentId=").append(this.getParentSpanId());
+		sb.append(", remote=").append(this.remote);
 		sb.append("}");
 		return sb.toString();
 	}

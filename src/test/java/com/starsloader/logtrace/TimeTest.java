@@ -39,7 +39,8 @@ public class TimeTest {
    }
 
    public static void httpConnect() throws Exception{
-        String requestUrl = "http://baidu.com";  
+        //String requestUrl = "http://baidu.com";
+	   String requestUrl = "http://localhost:8080/";
         Map<String, Object> requestParamsMap = new HashMap<String, Object>();  
         requestParamsMap.put("areaCode", "001");  
         requestParamsMap.put("areaCode1", "ÖÐ¹ú");  
