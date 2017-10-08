@@ -15,9 +15,10 @@ public class HttpURLConnectionRecvInjector implements ClassInjector,CallInjector
 		};
 
 	private final static  String methodCallBefore 
-	  = "  com.microtracing.tracespan.Tracer _$tracer = com.microtracing.tracespan.Tracer.getTracer(); \n"
+	  = "   com.microtracing.tracespan.Tracer _$tracer = com.microtracing.tracespan.Tracer.getTracer(); \n"
       + "   com.microtracing.tracespan.Span _$span =  _$tracer.getCurrentSpan(); \n"
-      + "   if (!\"HttpURLConnection.connect\".equals(_$span.getName())) { \n "
+      + "   String _$spanName = \"HttpURLConnection:\"+$0.getURL().toString(); \n"
+      + "   if (!_$spanName.equals(_$span.getName())) { \n "
       + "     _$span = null;  \n"
       + "   } \n"
       + "   com.microtracing.tracespan.web.HttpURLConnectionInterceptor _$inter = new com.microtracing.tracespan.web.HttpURLConnectionInterceptor(); \n"
@@ -27,6 +28,7 @@ public class HttpURLConnectionRecvInjector implements ClassInjector,CallInjector
 	private final static  String methodCallAfter  
 	  = "    if(_$span != null) _$span.logEvent(_$span.CLIENT_RECV);\n"
       + "  }catch(Exception _$e){ \n"
+      + "    if(_$span != null) _$span.logException(_$e); \n"
       + "    throw _$e;  \n"
       + "  }finally{ \n"
       + "    if(_$span != null) _$span.stop(); \n"

@@ -29,11 +29,13 @@ public class Span{
 
 	public static final String SPAN_START = "SPAN_START";  
 	public static final String SPAN_END = "SPAN_END";  
+	public static final String SPAN_ERROR = "SPAN_ERROR";
 	
 	public static final String CLIENT_RECV = "cr";
 	public static final String CLIENT_SEND = "cs";
 	public static final String SERVER_RECV = "sr";
 	public static final String SERVER_SEND = "ss";
+	
 	
 	public static final Set<String> ONE_OFF_EVENTS = new HashSet<String>(
 			Arrays.asList(SPAN_START, CLIENT_SEND, SERVER_SEND)); // SPAN_END, CLIENT_RECV, SERVER_RECV use the last event time
@@ -150,7 +152,12 @@ public class Span{
 		}
 		endTime = System.currentTimeMillis();
 		logFormatEvent(SPAN_END,"duration=%s", (endTime-startTime) );
+		
 		Tracer.getTracer().setCurrentSpan(this.parentSpan);
+		if (this.parentSpan != null) {
+			//detach
+			this.parentSpan.getChildSpans().remove(this);
+		}
 	}
 	
 	public void logEvent(String event) {
@@ -181,6 +188,10 @@ public class Span{
 		log(e.toString());
 	}
 	
+	public void logException(Exception ex) {
+		logFormatEvent(SPAN_ERROR, ex.toString());
+	}
+	
 	private void log(String log) {
 		MDC.put(Span.TRACE_ID_NAME, this.traceId);
 		MDC.put(Span.SPAN_ID_NAME, this.spanId);
@@ -188,6 +199,8 @@ public class Span{
 			logger.log(FQCN, org.apache.log4j.Level.INFO, log, null);
 		}		
 	}
+	
+	
 	
 	@Override
 	public boolean equals(Object o) {
@@ -217,9 +230,9 @@ public class Span{
 	public String toString() {
 		StringBuffer sb = new StringBuffer("Span{")   ;
 		sb.append("traceId=").append(this.traceId);
+		if(this.parentSpan!=null) sb.append(", parentId=").append(this.getParentSpanId());
 		sb.append(", spanId=").append(this.spanId);
 		sb.append(", spanName=\"").append(this.name).append("\"");
-		if(this.parentSpan!=null) sb.append(", parentId=").append(this.getParentSpanId());
 		sb.append(", remote=").append(this.remote);
 		sb.append("}");
 		return sb.toString();

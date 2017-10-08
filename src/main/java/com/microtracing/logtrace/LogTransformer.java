@@ -3,12 +3,13 @@ import java.io.ByteArrayInputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.reflect.Modifier;
-import java.security.ProtectionDomain; 
+import java.security.ProtectionDomain;
 
 import com.microtracing.logtrace.injectors.ExceptionInjector;
 import com.microtracing.logtrace.injectors.HttpURLConnectionRecvInjector;
 import com.microtracing.logtrace.injectors.HttpURLConnectionSendInjector;
-import com.microtracing.logtrace.injectors.LogInjector;
+import com.microtracing.logtrace.injectors.Log4jInjector;
+import com.microtracing.logtrace.injectors.SpanInjector;
 import com.microtracing.logtrace.injectors.TimerInjector;
 
 import javassist.CannotCompileException;
@@ -142,15 +143,17 @@ public class LogTransformer  implements ClassFileTransformer{
 			    return classfileBuffer;
 			}
 			
-			LogInjector logInjector = new LogInjector(config);
+			Log4jInjector logInjector = new Log4jInjector(config);
 			TimerInjector timerInjector = new TimerInjector(config);
 			ExceptionInjector exInjector = new ExceptionInjector(config);
+			
+			SpanInjector spanInjector = new SpanInjector(config);
 			
 			HttpURLConnectionSendInjector urlSendInjector = new HttpURLConnectionSendInjector(config);
 			HttpURLConnectionRecvInjector urlRecvInjector = new HttpURLConnectionRecvInjector(config);
 			
 			ClassInjector[] classInjectors = new ClassInjector[]{logInjector};
-			CallInjector[] callInjectors = new CallInjector[]{logInjector, urlSendInjector, urlRecvInjector};
+			CallInjector[] callInjectors = new CallInjector[]{spanInjector, urlSendInjector, urlRecvInjector};
 			MethodInjector[] methodInjectors = new MethodInjector[]{logInjector, timerInjector, exInjector};
 			
 			for(ClassInjector injector : classInjectors){

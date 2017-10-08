@@ -56,8 +56,8 @@ public class Tracer{
 	
 	public void closeThreadRootSpan() {
 		threadRootSpan.stop();
+		MDC.remove(Span.SPAN_ID_NAME);
 	}
-
 	
 	public Span createSpan(String operationName){
 		Span span = this.currentSpan.createChildSpan(operationName);

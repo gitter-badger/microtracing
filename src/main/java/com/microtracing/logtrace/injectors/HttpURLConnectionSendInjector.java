@@ -14,19 +14,21 @@ public class HttpURLConnectionSendInjector implements ClassInjector,CallInjector
 		};
 	
 	private final static  String methodCallBefore = "  com.microtracing.tracespan.Tracer _$tracer = com.microtracing.tracespan.Tracer.getTracer(); \n"
-                                                  +"   com.microtracing.tracespan.Span _$span =  _$tracer.getCurrentSpan(); \n"
-                                                  +"   if (!\"HttpURLConnection.connect\".equals(_$span.getName())) { \n "
-                                                  +"     _$span = _$tracer.createSpan(\"HttpURLConnection.connect\");  \n"
-                                                  +"     _$span.start();  \n"
-                                                  +"   } \n"
-                                                  +"   com.microtracing.tracespan.web.HttpURLConnectionInterceptor _$inter = new com.microtracing.tracespan.web.HttpURLConnectionInterceptor(); \n"
-                                                  + "  _$inter.inject(_$span, $0); \n"
-                                                  + "  _$span.logEvent(_$span.CLIENT_SEND); \n"
+                                                  + "  com.microtracing.tracespan.Span _$span =  _$tracer.getCurrentSpan(); \n"
+                                                  + "  String _$spanName = \"HttpURLConnection:\"+$0.getURL().toString(); \n"
+                                                  + "  if (!_$spanName.equals(_$span.getName())) { \n "
+                                                  + "    _$span = _$tracer.createSpan(_$spanName);  \n"
+                                                  + "    _$span.start();  \n"
+                                                  + "  } \n"
+                                                  + "  com.microtracing.tracespan.web.HttpURLConnectionInterceptor _$inter = new com.microtracing.tracespan.web.HttpURLConnectionInterceptor(); \n"
+                                                  + "  if(_$span != null) _$inter.inject(_$span, $0); \n"
+                                                  + "  if(_$span != null) _$span.logEvent(_$span.CLIENT_SEND); \n"
                                                   + "  try{ \n";
 	
 	private final static  String methodCallAfter  = "  \n"
                                                   + "  }catch(Exception _$e){ \n"
-                                                  + "    _$span.stop(); \n"
+                                                  + "    if(_$span != null) _$span.logException(_$e); \n"
+                                                  + "    if(_$span != null) _$span.stop(); \n"
                                                   + "    throw _$e;  \n"
                                                   + "  }finally{ \n"
                                                   + "  }\n";
