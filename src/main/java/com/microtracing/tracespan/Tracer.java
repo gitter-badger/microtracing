@@ -1,12 +1,14 @@
 package com.microtracing.tracespan;
 
 import java.util.UUID;
-import org.apache.log4j.Logger;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.MDC;  
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
 
 public class Tracer{
-	private static final Logger logger = LogManager.getLogger(Tracer.class);  
+	private static final Logger logger =  LoggerFactory.getLogger(Tracer.class);
 	
 	private String traceId;
 

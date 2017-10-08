@@ -9,12 +9,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.microtracing.tracespan.Span;
 import com.microtracing.tracespan.Tracer;  
 
 public class TimeTest {
-	//private static java.util.logging.Logger log = java.util.logging.Logger.getLogger(TimeTest.class.getName());
-	private static final org.apache.log4j.Logger logger =  org.apache.log4j.LogManager.getLogger(Span.class);
+	private static final Logger logger =  LoggerFactory.getLogger(TimeTest.class);
     public static void main(String[] args) throws Exception{
     	Tracer tracer = Tracer.getTracer();
     	Span span = tracer.getCurrentSpan();
@@ -92,7 +94,7 @@ public class TimeTest {
             while ((line = bufferedReader.readLine()) != null) {  
                 responseResult.append("\n").append(line);  
             }  
-            logger.info(responseResult);
+            logger.info(responseResult.toString());
         } catch (Exception e) {  
             logger.warn("send post request error!" + e);  
 			throw e;

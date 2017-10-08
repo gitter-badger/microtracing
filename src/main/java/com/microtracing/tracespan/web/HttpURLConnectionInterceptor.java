@@ -3,15 +3,19 @@ import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.microtracing.tracespan.Span;
+import com.microtracing.tracespan.Tracer;
 import com.microtracing.tracespan.ClientSpanInterceptor;
 
 /*
  * client side injector
  */
 public class HttpURLConnectionInterceptor implements ClientSpanInterceptor<HttpURLConnection, HttpURLConnection>{
-	private static final org.apache.log4j.Logger logger =  org.apache.log4j.LogManager.getLogger(HttpURLConnectionInterceptor.class);  
-
+	private static final Logger logger =  LoggerFactory.getLogger(HttpURLConnectionInterceptor.class);
+	
 	/**
 	 * extract server span from urlconnection response 
 	 */

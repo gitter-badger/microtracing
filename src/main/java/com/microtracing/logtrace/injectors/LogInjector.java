@@ -3,10 +3,12 @@ import com.microtracing.logtrace.CallInjector;
 import com.microtracing.logtrace.ClassInjector;
 import com.microtracing.logtrace.LogTraceConfig;
 import com.microtracing.logtrace.MethodInjector;
-public class Log4jInjector implements ClassInjector,CallInjector,MethodInjector{
+public class LogInjector implements ClassInjector,CallInjector,MethodInjector{
 	private final static String[] classFields = new String[]{
 		//"private final static java.util.logging.Logger _$logger = java.util.logging.Logger.getLogger(\"%1$s\");"
-	    "private final static org.apache.log4j.Logger _$logger = org.apache.log4j.LogManager.getLogger(\"%1$s\");"
+	    //"private final static org.apache.log4j.Logger _$logger = org.apache.log4j.LogManager.getLogger(\"%1$s\");"
+	    "private final static org.slf4j.Logger _$logger = org.slf4j.LoggerFactory.getLogger(\"%1$s\");"
+
 	};
 
 	private final static  String methodCallBefore 
@@ -89,7 +91,7 @@ public class Log4jInjector implements ClassInjector,CallInjector,MethodInjector{
 		return methodProcessFinally;
 	}	
 	
-	public Log4jInjector(LogTraceConfig config){
+	public LogInjector(LogTraceConfig config){
 		this.config = config;
 	}
 	

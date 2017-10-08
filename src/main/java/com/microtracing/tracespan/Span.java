@@ -9,14 +9,22 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.log4j.MDC;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+import org.slf4j.spi.LocationAwareLogger;
 
 
 public class Span{
 	private final static String FQCN = Span.class.getName();
 	
-	//private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Span.class.getName());
-	private static final org.apache.log4j.Logger logger =  org.apache.log4j.LogManager.getLogger(Span.class);  
+	private static final Logger logger =  LoggerFactory.getLogger(Span.class);
+	private static LocationAwareLogger locationAwareLogger = null;
+	static {
+	    if (logger instanceof LocationAwareLogger) {
+	    	locationAwareLogger = (LocationAwareLogger) logger;
+	    }
+	}
 	
 	public static final String TRACE_ID_NAME = "X-B3-TraceId";
 	public static final String SPAN_ID_NAME = "X-B3-SpanId";
@@ -39,7 +47,6 @@ public class Span{
 	
 	public static final Set<String> ONE_OFF_EVENTS = new HashSet<String>(
 			Arrays.asList(SPAN_START, CLIENT_SEND, SERVER_SEND)); // SPAN_END, CLIENT_RECV, SERVER_RECV use the last event time
-	
 	
 	private String traceId;
 	private String spanId;
@@ -196,8 +203,12 @@ public class Span{
 		MDC.put(Span.TRACE_ID_NAME, this.traceId);
 		MDC.put(Span.SPAN_ID_NAME, this.spanId);
 		if (logger.isInfoEnabled()) {
-			logger.log(FQCN, org.apache.log4j.Level.INFO, log, null);
-		}		
+	        if (locationAwareLogger != null) {
+	        	locationAwareLogger.log(null, FQCN, LocationAwareLogger.INFO_INT, log, null, null);
+	        }else {
+	        	logger.info(log);
+	        }
+		}
 	}
 	
 	

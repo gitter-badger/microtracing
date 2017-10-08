@@ -6,6 +6,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.microtracing.tracespan.ServerSpanInterceptor;
 import com.microtracing.tracespan.Span;
 import com.microtracing.tracespan.Tracer;
@@ -14,8 +17,7 @@ import com.microtracing.tracespan.Tracer;
  * server side injector
  */
 public class HttpServletInterceptor  implements ServerSpanInterceptor<HttpServletRequest,HttpServletResponse>{
-	private static final org.apache.log4j.Logger logger =  org.apache.log4j.LogManager.getLogger(HttpServletInterceptor.class);  
-
+	private static final Logger logger =  LoggerFactory.getLogger(HttpServletInterceptor.class);
 	/**
 	 * extract client span from request 
 	 */

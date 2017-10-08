@@ -8,7 +8,7 @@ import java.security.ProtectionDomain;
 import com.microtracing.logtrace.injectors.ExceptionInjector;
 import com.microtracing.logtrace.injectors.HttpURLConnectionRecvInjector;
 import com.microtracing.logtrace.injectors.HttpURLConnectionSendInjector;
-import com.microtracing.logtrace.injectors.Log4jInjector;
+import com.microtracing.logtrace.injectors.LogInjector;
 import com.microtracing.logtrace.injectors.SpanInjector;
 import com.microtracing.logtrace.injectors.TimerInjector;
 
@@ -143,7 +143,7 @@ public class LogTransformer  implements ClassFileTransformer{
 			    return classfileBuffer;
 			}
 			
-			Log4jInjector logInjector = new Log4jInjector(config);
+			LogInjector logInjector = new LogInjector(config);
 			TimerInjector timerInjector = new TimerInjector(config);
 			ExceptionInjector exInjector = new ExceptionInjector(config);
 			
