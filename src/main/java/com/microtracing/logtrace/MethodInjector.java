@@ -1,9 +1,9 @@
 package com.microtracing.logtrace;
 public interface MethodInjector {
 	public boolean isNeedProcessInject(String className, String methodName);
-	public String[][] getMethodVariables();
-	public String getMethodProcessStart();
-	public String getMethodProcessReturn();
-	public String getMethodProcessException();
-	public String getMethodProcessFinally();
+	public String[][] getMethodVariables(String className, String methodName);
+	public String getMethodProcessStart(String className, String methodName);
+	public String getMethodProcessReturn(String className, String methodName);
+	public String getMethodProcessException(String className, String methodName);
+	public String getMethodProcessFinally(String className, String methodName);
 }

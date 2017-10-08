@@ -145,7 +145,7 @@ public class Span{
 	public void start(){
 		Tracer.getTracer().setCurrentSpan(this);
 		if (this.startTime!=0 || this.isRemote()) {
-			logger.debug(this.spanId + " span was already started, will not do it again");
+			log(this.spanId + " span was already started, will not do it again");
 		}else {
 			startTime = System.currentTimeMillis();
 			log(this.toString() + " started.");
@@ -185,7 +185,7 @@ public class Span{
 			for (SpanEvent e : events) {
 				if (e.getEvent().equals(event)) {
 					//if (msg!=null) e.setMsg(e.getMsg() + " " + msg);
-					logger.debug(e + " was already annotated, will not do it again");
+					log(e + " was already annotated, will not do it again");
 					return ;
 				}
 			}
@@ -200,8 +200,8 @@ public class Span{
 	}
 	
 	private void log(String log) {
-		MDC.put(Span.TRACE_ID_NAME, this.traceId);
-		MDC.put(Span.SPAN_ID_NAME, this.spanId);
+		if (!this.traceId.equals(MDC.get(Span.TRACE_ID_NAME))) MDC.put(Span.TRACE_ID_NAME, this.traceId);
+		if (!this.spanId.equals(MDC.get(Span.SPAN_ID_NAME))) MDC.put(Span.SPAN_ID_NAME, this.spanId);
 		if (logger.isInfoEnabled()) {
 	        if (locationAwareLogger != null) {
 	        	locationAwareLogger.log(null, FQCN, LocationAwareLogger.INFO_INT, log, null, null);

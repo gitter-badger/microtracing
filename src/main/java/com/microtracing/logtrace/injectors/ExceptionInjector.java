@@ -15,23 +15,23 @@ public class ExceptionInjector implements MethodInjector{
 													    + "  } \n";
 	private final static  String methodProcessFinally   = "";	
 	
-	public  String[][] getMethodVariables(){
+	public  String[][] getMethodVariables(String className, String methodName){
 		return methodVariables;
 	}
 	
-	public  String getMethodProcessStart(){
+	public  String getMethodProcessStart(String className, String methodName){
 		return methodProcessStart;
 	}
 	
-	public  String getMethodProcessReturn(){
+	public  String getMethodProcessReturn(String className, String methodName){
 		return String.format(methodProcessReturn, config.getLogMethodLatency());
 	}	
 	
-	public  String getMethodProcessException(){
+	public  String getMethodProcessException(String className, String methodName){
 		return methodProcessException;
 	}	
 
-	public  String getMethodProcessFinally(){
+	public  String getMethodProcessFinally(String className, String methodName){
 		return methodProcessFinally;
 	}	
 	
@@ -44,7 +44,7 @@ public class ExceptionInjector implements MethodInjector{
 	}
 	
 	public boolean isNeedProcessInject(String className, String methodName){
-		return config.isNeedInject(className) && !config.isNeedProcessInject(className, methodName); // loginjector done everything
+		return config.isNeedInject(className) ;//&& !config.isNeedProcessInject(className, methodName); // loginjector done everything
 	}
 	
 	private LogTraceConfig config;

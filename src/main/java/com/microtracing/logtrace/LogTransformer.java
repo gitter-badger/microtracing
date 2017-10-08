@@ -9,7 +9,8 @@ import com.microtracing.logtrace.injectors.ExceptionInjector;
 import com.microtracing.logtrace.injectors.HttpURLConnectionRecvInjector;
 import com.microtracing.logtrace.injectors.HttpURLConnectionSendInjector;
 import com.microtracing.logtrace.injectors.LogInjector;
-import com.microtracing.logtrace.injectors.SpanInjector;
+import com.microtracing.logtrace.injectors.SpanCallInjector;
+import com.microtracing.logtrace.injectors.SpanMethodInjector;
 import com.microtracing.logtrace.injectors.TimerInjector;
 
 import javassist.CannotCompileException;
@@ -68,13 +69,16 @@ public class LogTransformer  implements ClassFileTransformer{
 	private CtMethod interceptMethod(CtMethod ctmethod, MethodInjector injector){
 		if (cannotInject(ctmethod)) return ctmethod;
 		
-		boolean needTraceInject = injector.isNeedProcessInject(ctmethod.getDeclaringClass().getName(), ctmethod.getName());					
+		String className = ctmethod.getDeclaringClass().getName();
+		String methodName = ctmethod.getName();
+		
+		boolean needTraceInject = injector.isNeedProcessInject(className, methodName);					
 		if (!needTraceInject)  return ctmethod;
 		
 		ClassPool classPool = ClassPool.getDefault();
 		try{
-			String[][] vars = injector.getMethodVariables();
-			if (vars != null && vars.length > 0) for (String[] var : injector.getMethodVariables()){
+			String[][] vars = injector.getMethodVariables(className, methodName);
+			if (vars != null && vars.length > 0) for (String[] var : vars){
 				String type = var[0];
 				CtClass cttype;
 				if ("boolean".equals(type)){
@@ -101,16 +105,16 @@ public class LogTransformer  implements ClassFileTransformer{
 				ctmethod.addLocalVariable(var[1], cttype);
 			}
 
-			String start = injector.getMethodProcessStart();
+			String start = injector.getMethodProcessStart(className, methodName);
 			if (start!=null && start.trim().length()>0) ctmethod.insertBefore(start);
 
-			String end = injector.getMethodProcessReturn();
+			String end = injector.getMethodProcessReturn(className, methodName);
 			if (end!=null && end.trim().length()>0) ctmethod.insertAfter(end);
 
-			String ex = injector.getMethodProcessException();
+			String ex = injector.getMethodProcessException(className, methodName);
 			if (ex!=null && ex.trim().length()>0) ctmethod.addCatch(ex, classPool.get("java.lang.Exception"), "_$e"); 
 			
-			String fin = injector.getMethodProcessFinally();
+			String fin = injector.getMethodProcessFinally(className, methodName);
 			if (fin!=null && fin.trim().length()>0) ctmethod.insertAfter(fin, true);
 		}catch(NotFoundException ne){
 			logger.warning(ne + " method: " + ctmethod + " injector: " + injector);
@@ -147,14 +151,15 @@ public class LogTransformer  implements ClassFileTransformer{
 			TimerInjector timerInjector = new TimerInjector(config);
 			ExceptionInjector exInjector = new ExceptionInjector(config);
 			
-			SpanInjector spanInjector = new SpanInjector(config);
+			SpanCallInjector spanCallInjector = new SpanCallInjector(config);
+			SpanMethodInjector spanMethodInjector = new SpanMethodInjector(config);
 			
 			HttpURLConnectionSendInjector urlSendInjector = new HttpURLConnectionSendInjector(config);
 			HttpURLConnectionRecvInjector urlRecvInjector = new HttpURLConnectionRecvInjector(config);
 			
 			ClassInjector[] classInjectors = new ClassInjector[]{logInjector};
-			CallInjector[] callInjectors = new CallInjector[]{spanInjector, urlSendInjector, urlRecvInjector};
-			MethodInjector[] methodInjectors = new MethodInjector[]{logInjector, timerInjector, exInjector};
+			CallInjector[] callInjectors = new CallInjector[]{spanCallInjector, urlSendInjector, urlRecvInjector};
+			MethodInjector[] methodInjectors = new MethodInjector[]{spanMethodInjector, timerInjector, exInjector};
 			
 			for(ClassInjector injector : classInjectors){
 				interceptClass(ctclass, injector);
