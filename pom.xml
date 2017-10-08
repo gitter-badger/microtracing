@@ -97,7 +97,7 @@
           </excludes>
           <archive>  
             <manifestEntries>  
-              <Premain-Class>com.starsloader.logtrace.LogAgent</Premain-Class>
+              <Premain-Class>com.microtracing.logtrace.LogAgent</Premain-Class>
             </manifestEntries>  
           </archive>  
           <descriptorRefs>  
