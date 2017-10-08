@@ -10,7 +10,8 @@ import com.microtracing.tracespan.ClientSpanInterceptor;
  * client side injector
  */
 public class HttpURLConnectionInterceptor implements ClientSpanInterceptor<HttpURLConnection, HttpURLConnection>{
-	
+	private static final org.apache.log4j.Logger logger =  org.apache.log4j.LogManager.getLogger(HttpURLConnectionInterceptor.class);  
+
 	/**
 	 * extract server span from urlconnection response 
 	 */
@@ -25,7 +26,7 @@ public class HttpURLConnectionInterceptor implements ClientSpanInterceptor<HttpU
 		}
 		Span serverSpan = Span.buildSpan(carrier);		
 		serverSpan.setRemote(true);
-		
+		logger.info(serverSpan + " extracted.");
 		//should be currentthread tracer
 		//Tracer tracer = Tracer.getTracer(serverSpan.getTraceId());
 		

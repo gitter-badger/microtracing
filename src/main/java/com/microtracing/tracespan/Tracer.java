@@ -77,6 +77,7 @@ public class Tracer{
 			tracer = new Tracer(traceId);
 			tracerLocal.set(tracer);
 			MDC.put(Span.TRACE_ID_NAME, traceId);
+			logger.info(tracer.toString()+" generated.");
 		}
 		return tracer;
 	}
@@ -97,5 +98,15 @@ public class Tracer{
 		}
 		return false;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer("Tracer{")   ;
+		sb.append("traceId=").append(this.traceId);
+		sb.append("}");
+		return sb.toString();
+	}
+	
+		
 			
 }

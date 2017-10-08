@@ -149,7 +149,7 @@ public class Span{
 			logger.warn(this.spanId + " span was not started!");
 		}
 		endTime = System.currentTimeMillis();
-		logFormatEvent(SPAN_END,"spanId=%1$s name=%2$s duration=%3$s", this.spanId, this.name, (endTime-startTime) );
+		logFormatEvent(SPAN_END,"duration=%s", (endTime-startTime) );
 		Tracer.getTracer().setCurrentSpan(this.parentSpan);
 	}
 	
@@ -213,6 +213,7 @@ public class Span{
 		return carrier;
 	}
 	
+	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer("Span{")   ;
 		sb.append("traceId=").append(this.traceId);

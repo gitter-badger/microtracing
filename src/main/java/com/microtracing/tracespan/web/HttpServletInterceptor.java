@@ -14,6 +14,7 @@ import com.microtracing.tracespan.Tracer;
  * server side injector
  */
 public class HttpServletInterceptor  implements ServerSpanInterceptor<HttpServletRequest,HttpServletResponse>{
+	private static final org.apache.log4j.Logger logger =  org.apache.log4j.LogManager.getLogger(HttpServletInterceptor.class);  
 
 	/**
 	 * extract client span from request 
@@ -30,6 +31,8 @@ public class HttpServletInterceptor  implements ServerSpanInterceptor<HttpServle
 
 		Span clientSpan = Span.buildSpan(carrier);
 		clientSpan.setRemote(true);
+		logger.info(clientSpan.toString() + " extracted.");
+		
 		clientSpan.logEvent(Span.SERVER_RECV);
 		
 		Tracer tracer = Tracer.getTracer(clientSpan.getTraceId());
