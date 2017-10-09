@@ -35,9 +35,10 @@ public class TraceFilter implements Filter {
 			throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) servletRequest;
 		HttpServletResponse response = (HttpServletResponse) servletResponse;
+		boolean isFirst = request.getAttribute(TRACER_REQUEST_ATTR)==null;
 		Tracer tracer = getTracer(request);
 		Span rootSpan = tracer.getThreadRootSpan();
-		rootSpan.start();
+		if (isFirst) rootSpan.start();
 		try {
 			Span clientSpan = tracer.getClientSpan();
 			if (clientSpan != null) {
@@ -47,7 +48,8 @@ public class TraceFilter implements Filter {
 				chain.doFilter(request, response);
 			}
 		} finally {
-			rootSpan.stop();
+			//rootSpan.stop();
+			if (isFirst) tracer.closeThreadRootSpan();
 		}
 	}
 	
