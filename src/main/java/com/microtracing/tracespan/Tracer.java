@@ -17,6 +17,10 @@ public class Tracer{
 	private Span currentSpan;
 	
 	public Tracer(String traceId){
+		if (traceId == null){
+			traceId = genTraceId();
+			//this.threadRootSpan = new Span(traceId, null, traceId, Thread.currentThread().getName());
+		}
 		this.traceId = traceId;
 		this.threadRootSpan = new Span(traceId, null, null, Thread.currentThread().getName());
 		setCurrentSpan(this.threadRootSpan);
@@ -59,6 +63,7 @@ public class Tracer{
 	public void closeThreadRootSpan() {
 		threadRootSpan.stop();
 		MDC.remove(Span.SPAN_ID_NAME);
+		MDC.remove(Span.TRACE_ID_NAME);
 	}
 	
 	public Span createSpan(String operationName){
@@ -75,10 +80,9 @@ public class Tracer{
 	public static Tracer getTracer(String traceId){
 		Tracer tracer = (Tracer)tracerLocal.get();
 		if (tracer == null || (traceId!=null && !traceId.equals(tracer.getTraceId()))) {
-			if (traceId == null) traceId = genTraceId();
 			tracer = new Tracer(traceId);
 			tracerLocal.set(tracer);
-			MDC.put(Span.TRACE_ID_NAME, traceId);
+			MDC.put(Span.TRACE_ID_NAME, tracer.getTraceId());
 			logger.info(tracer.toString()+" generated.");
 		}
 		return tracer;

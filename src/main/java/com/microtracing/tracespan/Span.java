@@ -249,7 +249,7 @@ public class Span{
 		if(this.parentSpan!=null) sb.append(", parentId=").append(this.getParentSpanId());
 		sb.append(", spanId=").append(this.spanId);
 		sb.append(", spanName=\"").append(this.name).append("\"");
-		sb.append(", remote=").append(this.remote);
+		if(this.remote) sb.append(", remote=").append(this.remote);
 		sb.append("}");
 		return sb.toString();
 	}

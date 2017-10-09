@@ -46,16 +46,22 @@ public class LogTransformer  implements ClassFileTransformer{
 
 	private CtMethod interceptCall(CtMethod ctmethod, final CallInjector injector){
 		if (cannotInject(ctmethod)) return ctmethod;
+		final String className = ctmethod.getDeclaringClass().getName();
+		final String methodName = ctmethod.getName();
 		try{
 			ctmethod.instrument(
 				new ExprEditor() {
 					public void edit(MethodCall m)
 								  throws CannotCompileException{
 						if (injector.isNeedCallInject(m.getClassName(), m.getMethodName())){
+							String callClassName = m.getClassName();
+							String callMethodName = m.getMethodName();
 							String wrap =  String.format("{\n%1$s\n\t  $_ = $proceed($$); \n%2$s\n}",  
-										injector.getMethodCallBefore(m.getClassName(), m.getMethodName()),
-										injector.getMethodCallAfter(m.getClassName(), m.getMethodName()));
-							//System.out.println(wrap);
+										injector.getMethodCallBefore(callClassName, callMethodName),
+										injector.getMethodCallAfter(callClassName, callMethodName));
+
+		
+							//logger.finest(String.format("Inject method call  %s.%s in %s.%s \n%s", callClassName, callMethodName, className, methodName, wrap));
 							m.replace(wrap);
 						}
 					}
@@ -71,6 +77,8 @@ public class LogTransformer  implements ClassFileTransformer{
 		
 		String className = ctmethod.getDeclaringClass().getName();
 		String methodName = ctmethod.getName();
+		
+		//logger.finest("Inject into " + className + "." + methodName);
 		
 		boolean needTraceInject = injector.isNeedProcessInject(className, methodName);					
 		if (!needTraceInject)  return ctmethod;
@@ -106,15 +114,15 @@ public class LogTransformer  implements ClassFileTransformer{
 			}
 
 			String start = injector.getMethodProcessStart(className, methodName);
-			if (start!=null && start.trim().length()>0) ctmethod.insertBefore(start);
-
 			String end = injector.getMethodProcessReturn(className, methodName);
-			if (end!=null && end.trim().length()>0) ctmethod.insertAfter(end);
-
 			String ex = injector.getMethodProcessException(className, methodName);
-			if (ex!=null && ex.trim().length()>0) ctmethod.addCatch(ex, classPool.get("java.lang.Exception"), "_$e"); 
-			
 			String fin = injector.getMethodProcessFinally(className, methodName);
+			
+			//logger.finest(String.format("Inject method process  %s.%s \n%s \n...\n%s \n...\n%s \n...\n%s", className, methodName, start, end, ex, fin));
+			
+			if (start!=null && start.trim().length()>0) ctmethod.insertBefore(start);
+			if (end!=null && end.trim().length()>0) ctmethod.insertAfter(end);
+			if (ex!=null && ex.trim().length()>0) ctmethod.addCatch(ex, classPool.get("java.lang.Exception"), "_$e"); 
 			if (fin!=null && fin.trim().length()>0) ctmethod.insertAfter(fin, true);
 		}catch(NotFoundException ne){
 			logger.warning(ne + " method: " + ctmethod + " injector: " + injector);
