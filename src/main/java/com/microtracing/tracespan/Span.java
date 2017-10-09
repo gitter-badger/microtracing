@@ -148,7 +148,7 @@ public class Span{
 			log(this.spanId + " span was already started, will not do it again");
 		}else {
 			startTime = System.currentTimeMillis();
-			log(this.toString() + " started.");
+			//log(this.toString() + " started.");
 			logEvent(SPAN_START);
 		}
 	}
@@ -192,7 +192,12 @@ public class Span{
 		}
 		SpanEvent e = new SpanEvent(this.spanId, System.currentTimeMillis(), event, msg);
 		events.add(e);
-		log(e.toString());
+		
+		String log = e.toString();
+		if (SPAN_START.equals(event)) {
+			log = log + " " +this.toString();
+		}
+		log(log);
 	}
 	
 	public void logException(Exception ex) {
