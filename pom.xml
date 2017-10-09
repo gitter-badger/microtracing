@@ -68,7 +68,7 @@
               <addClasspath>true</addClasspath>
             </manifest>
             <manifestEntries>  
-              <Premain-Class>com.microtracing.logtrace.LogAgent</Premain-Class>
+              <Premain-Class>com.microtracing.traceagent.LogTraceAgent</Premain-Class>
             </manifestEntries>  
           </archive>
         </configuration>

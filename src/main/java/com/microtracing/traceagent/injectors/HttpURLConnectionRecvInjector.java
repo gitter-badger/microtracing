@@ -1,9 +1,9 @@
-package com.microtracing.logtrace.injectors;
+package com.microtracing.traceagent.injectors;
 
-import com.microtracing.logtrace.CallInjector;
-import com.microtracing.logtrace.ClassInjector;
-import com.microtracing.logtrace.LogTraceConfig;
-import com.microtracing.logtrace.LogTransformer;
+import com.microtracing.traceagent.CallInjector;
+import com.microtracing.traceagent.ClassInjector;
+import com.microtracing.traceagent.LogTraceConfig;
+import com.microtracing.traceagent.LogTraceTransformer;
 
 
 public class HttpURLConnectionRecvInjector implements CallInjector{

@@ -1,17 +1,17 @@
-package com.microtracing.logtrace;
+package com.microtracing.traceagent;
 import java.io.ByteArrayInputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 
-import com.microtracing.logtrace.injectors.ExceptionInjector;
-import com.microtracing.logtrace.injectors.HttpURLConnectionRecvInjector;
-import com.microtracing.logtrace.injectors.HttpURLConnectionSendInjector;
-import com.microtracing.logtrace.injectors.LogInjector;
-import com.microtracing.logtrace.injectors.SpanCallInjector;
-import com.microtracing.logtrace.injectors.SpanMethodInjector;
-import com.microtracing.logtrace.injectors.TimerInjector;
+import com.microtracing.traceagent.injectors.ExceptionInjector;
+import com.microtracing.traceagent.injectors.HttpURLConnectionRecvInjector;
+import com.microtracing.traceagent.injectors.HttpURLConnectionSendInjector;
+import com.microtracing.traceagent.injectors.LogInjector;
+import com.microtracing.traceagent.injectors.SpanCallInjector;
+import com.microtracing.traceagent.injectors.SpanMethodInjector;
+import com.microtracing.traceagent.injectors.TimerInjector;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -21,13 +21,13 @@ import javassist.CtMethod;
 import javassist.NotFoundException;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
-public class LogTransformer  implements ClassFileTransformer{
+public class LogTraceTransformer  implements ClassFileTransformer{
 	//private static final org.apache.log4j.Logger logger =  org.apache.log4j.LogManager.getLogger(LogTransformer.class);
-	private static final java.util.logging.Logger logger =  java.util.logging.Logger.getLogger(LogTransformer.class.getName());
+	private static final java.util.logging.Logger logger =  java.util.logging.Logger.getLogger(LogTraceTransformer.class.getName());
 	
 	private LogTraceConfig config;
 	
-	public LogTransformer(LogTraceConfig config){
+	public LogTraceTransformer(LogTraceConfig config){
 		this.config = config;
 	}
 	

@@ -1,4 +1,4 @@
-package com.microtracing.logtrace;
+package com.microtracing.traceagent;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
