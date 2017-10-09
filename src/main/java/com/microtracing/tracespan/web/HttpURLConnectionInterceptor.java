@@ -30,7 +30,7 @@ public class HttpURLConnectionInterceptor implements ClientSpanInterceptor<HttpU
 		}
 		Span serverSpan = Span.buildSpan(carrier);		
 		serverSpan.setRemote(true);
-		logger.info(serverSpan + " extracted.");
+		logger.debug(serverSpan + " extracted.");
 		//should be currentthread tracer
 		//Tracer tracer = Tracer.getTracer(serverSpan.getTraceId());
 		
@@ -45,5 +45,6 @@ public class HttpURLConnectionInterceptor implements ClientSpanInterceptor<HttpU
 		for (String headerName : carrier.keySet()) {
 			conn.setRequestProperty(headerName, carrier.get(headerName));
 		}
+		logger.debug("{} injected into HttpURLConnection request. {}={} {}={} ", span, Span.TRACE_ID_NAME,conn.getRequestProperty(Span.TRACE_ID_NAME), Span.SPAN_ID_NAME,conn.getRequestProperty(Span.SPAN_ID_NAME));
 	}
 }

@@ -11,10 +11,15 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.microtracing.tracespan.Span;
 import com.microtracing.tracespan.Tracer;
 
 public class TraceFilter implements Filter {
+	private static final Logger logger =  LoggerFactory.getLogger(TraceFilter.class);
+	
 	protected static final String TRACER_REQUEST_ATTR = TraceFilter.class.getName() + ".TRACER";
 	
 	private FilterConfig filterConfig;
@@ -57,13 +62,75 @@ public class TraceFilter implements Filter {
 			}else {
 				tracer = Tracer.getTracer();
 			}
-			String name = request.getRequestURL().toString();
+			String name = "WEB:"+request.getRequestURL().toString();
 			Span span = tracer.getThreadRootSpan();
 			span.setName(name);
 			request.setAttribute(TRACER_REQUEST_ATTR, tracer);
 		}
 		return tracer;
 	}
+	/*
+	
+	private void logRequestInfo(HttpServletRequest request){
+		StringBuffer sb = new StringBuffer();
+		
+		String url = request.getRequestURL().toString();
+		String clientIp = getClientIpAddr(request);
+		String remoteAddr = request.getRemoteAddr();
+		
+		sb.append(" url=").append(url);
+		sb.append(" clientIp=").append(clientIp);
+		sb.append(" remoteAddr=").append(remoteAddr);
+		logger.info(sb.toString());
+		
+		sb = new StringBuffer();
+		sb.append(" headers:{ ");
+		for (String name : request.getHeaderNames()) {
+			sb.append(name).append("=\"").append(request.getHeader(name)).append("\", ");
+		}
+		sb.append("}");
+		logger.debug(sb.toString());
+	}
+	
+	private void logResponseInfo(HttpServletRequest request, HttpServletResponse response){
+		StringBuffer sb = new StringBuffer();
+		
+		for (String name : request.getParameterNames()){
+			if (name.toLowerCase().endWith("id")){
+				sb.append(name + "=");
+				String[] values = request.getParameterValues(name);
+				if (values!=null && values.length==1){
+					sb.append("\"").append(values[0]).append("\"");
+				}else {
+					sb.append("[");
+					for (int i=0; i<values.length; i++){
+						sb.append("\"").append(values[i]).append("\"");
+						if (i<values.length-1){
+							sb.append(",");
+						}
+					}
+					sb.append("]");
+				}
+				sb.append(" ");
+			}
+		}
+	}
+	*/
+
+	public static String getClientIpAddr(HttpServletRequest request){
+	       String ip = request.getHeader("x-forwarded-for");
+	       if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+	           ip = request.getHeader("Proxy-Client-IP");
+	       }
+	       if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+	           ip = request.getHeader("WL-Proxy-Client-IP");
+	       }
+	       if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+	           ip = request.getRemoteAddr();
+	       }
+	       if (ip==null) ip="-";
+	       return ip;
+	}	
 	
 	@Override
 	public void destroy() {

@@ -12,6 +12,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.caucho.hessian.client.HessianProxyFactory;
+
 import com.microtracing.tracespan.Span;
 import com.microtracing.tracespan.Tracer;  
 
@@ -23,7 +25,12 @@ public class TimeTest {
     	span.start();
     	try {
 	        sayHello();
-			httpConnect();
+			try{
+				httpConnect();
+			}catch(Exception ex){
+				ex.printStackTrace();
+			}
+			hessionConnect();
     	}finally {
     		span.stop();
     	}
@@ -38,6 +45,12 @@ public class TimeTest {
              e.printStackTrace();
         }
 		logger.info(doSomething());
+   }
+   
+   public static void hessionConnect() throws Exception{
+	   HessianProxyFactory factory = new HessianProxyFactory();
+	   Staff staff = (Staff)factory.create(Staff.class,"http://localhost:8080/StaffServlet");
+	   staff.queryStaffCompany("0");
    }
 
    public static void httpConnect() throws Exception{
