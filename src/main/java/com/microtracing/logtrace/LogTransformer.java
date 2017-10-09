@@ -125,11 +125,11 @@ public class LogTransformer  implements ClassFileTransformer{
 			if (ex!=null && ex.trim().length()>0) ctmethod.addCatch(ex, classPool.get("java.lang.Exception"), "_$e"); 
 			if (fin!=null && fin.trim().length()>0) ctmethod.insertAfter(fin, true);
 		}catch(NotFoundException ne){
-			logger.warning(ne + " method: " + ctmethod + " injector: " + injector);
+			logger.warning(ne + " method: " + className +"." + methodName + " injector: " + injector);
 		}catch(CannotCompileException ce){
-			logger.warning(ce + " method: " + ctmethod + " injector: " + injector);
+			logger.warning(ce + " method: " + className +"." + methodName + " injector: " + injector);
 		}catch(Exception ex){
-			logger.warning(ex + " method: " + ctmethod + " injector: " + injector);
+			logger.warning(ex + " method: " + className +"." + methodName + " injector: " + injector);
 		}
 		return ctmethod;
 	}	
@@ -167,7 +167,7 @@ public class LogTransformer  implements ClassFileTransformer{
 			
 			ClassInjector[] classInjectors = new ClassInjector[]{logInjector};
 			CallInjector[] callInjectors = new CallInjector[]{spanCallInjector, urlSendInjector, urlRecvInjector};
-			MethodInjector[] methodInjectors = new MethodInjector[]{spanMethodInjector, timerInjector, exInjector};
+			MethodInjector[] methodInjectors = new MethodInjector[]{spanMethodInjector, timerInjector};
 			
 			for(ClassInjector injector : classInjectors){
 				interceptClass(ctclass, injector);
