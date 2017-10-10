@@ -88,6 +88,7 @@ public class TimeTest {
             // 发送POST请求必须设置如下两行  
             httpURLConnection.setDoOutput(true);  
             httpURLConnection.setDoInput(true);  
+            httpURLConnection.setConnectTimeout(1000);
             // 获取URLConnection对象对应的输出流  
             printWriter = new PrintWriter(httpURLConnection.getOutputStream());  
             // 发送请求参数  

@@ -107,17 +107,17 @@ public class LogInjector implements ClassInjector,CallInjector,MethodInjector{
     
     @Override
     public boolean isNeedInject(String className){
-        return config.isNeedInject(className);
+        return config.isEnableLog() && config.isNeedInject(className);
     }
     
     @Override
     public boolean isNeedCallInject(String className, String methodName){
-        return config.isNeedCallInject(className, methodName);
+        return config.isEnableLog() && config.isNeedCallInject(className, methodName);
     }
     
     @Override
     public boolean isNeedProcessInject(String className, String methodName){
-        return config.isNeedProcessInject(className, methodName);
+        return config.isEnableLog() && config.isNeedProcessInject(className, methodName);
     }
     
 

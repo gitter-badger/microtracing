@@ -55,12 +55,14 @@ public class HttpURLConnectionSendInjector implements CallInjector{
 	
 	
 	public boolean isNeedInject(String className) {
-		return "java.net.URLConnection".equals(className)||"java.net.HttpURLConnection".equals(className)||"sun.net.www.protocol.http.HttpURLConnection".equals(className);
+		return config.isEnableHttpURLConnectionTrace() 
+				&& "java.net.URLConnection".equals(className)||"java.net.HttpURLConnection".equals(className)||"sun.net.www.protocol.http.HttpURLConnection".equals(className);
 	}
 	
 	@Override
 	public boolean isNeedCallInject(String className, String methodName){
-		return isNeedInject(className)
+		return config.isEnableHttpURLConnectionTrace() 
+				&& isNeedInject(className)
 				&& ("connect".equals(methodName) || "getOutputStream".equals(methodName));
 	}
 	

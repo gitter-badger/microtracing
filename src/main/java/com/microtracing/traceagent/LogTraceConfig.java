@@ -13,10 +13,14 @@ public class LogTraceConfig{
 	private static final String CONFIG_FILE_NAME = "logtrace.properties";
 	private static File DEFAULT_CONFIG_FILE = new File(System.getProperty("user.home"), "/.logtrace/" + CONFIG_FILE_NAME);
 	
-	protected  int logMethodLatency = 100; 
-	protected  Set<String> includePackages = new HashSet<String>();
-    protected  Map<String, List<String>> traceMethodCall = new HashMap<String, List<String>>(); // class, methods
-    protected  Map<String, List<String>> traceMethodProcess = new HashMap<String, List<String>>(); // class, methods
+	private boolean enableHttpURLConnectionTrace = true;
+	private boolean enableTimingLog = false;
+	private boolean enableExceptionLog = false;
+	private int logMethodLatency = 500;
+	
+	private  Set<String> includePackages = new HashSet<String>();
+	private  Map<String, List<String>> traceMethodCall = new HashMap<String, List<String>>(); // class, methods
+	private  Map<String, List<String>> traceMethodProcess = new HashMap<String, List<String>>(); // class, methods
 	
 	public int getLogMethodLatency(){
 		return logMethodLatency;
@@ -49,7 +53,23 @@ public class LogTraceConfig{
         list.add(methodName);
 		addProfileClass(className);
     }
+    
+    public boolean isEnableHttpURLConnectionTrace() {
+    	return enableHttpURLConnectionTrace;
+    }
 	
+	public boolean isEnableLog() {
+		return enableTimingLog || enableExceptionLog ;
+	}
+
+	public boolean isEnableTimingLog() {
+		return enableTimingLog;
+	}
+
+	public boolean isEnableExceptionLog() {
+		return enableExceptionLog;
+	}
+
 	public  boolean isNeedInject(String className) {
 		if (traceMethodCall.containsKey(className)){
 			return true;
@@ -146,9 +166,9 @@ public class LogTraceConfig{
 		try {
 			properties.load(new FileReader(path)); 
 			
-			Properties context = new Properties(); 
-			context.putAll(System.getProperties());
-			context.putAll(properties);
+			//Properties context = new Properties(); 
+			//context.putAll(System.getProperties());
+			//context.putAll(properties);
 			
 			loadConfig(properties);
 		} catch (Exception e) {
@@ -157,6 +177,10 @@ public class LogTraceConfig{
 	}
 
 	private void loadConfig(Properties properties)  {
+		this.enableHttpURLConnectionTrace = Boolean.parseBoolean(properties.getProperty("enableHttpURLConnectionTrace"));
+		this.enableTimingLog = Boolean.parseBoolean(properties.getProperty("enableTimingLog"));
+		this.enableExceptionLog = Boolean.parseBoolean(properties.getProperty("enableExceptionLog"));
+	
 		String slogMethodLatency = properties.getProperty("logMethodLatency");
 		if (slogMethodLatency!=null) this.logMethodLatency = Integer.parseInt(slogMethodLatency);
 		

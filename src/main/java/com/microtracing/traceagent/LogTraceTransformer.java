@@ -4,6 +4,8 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.microtracing.traceagent.injectors.ExceptionInjector;
 import com.microtracing.traceagent.injectors.HttpURLConnectionRecvInjector;
@@ -27,10 +29,47 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 	
 	private LogTraceConfig config;
 	
+	private Set<ClassInjector> classInjectors = new HashSet<ClassInjector>();
+	private Set<CallInjector> callInjectors = new HashSet<CallInjector>();
+	private Set<MethodInjector> methodInjectors = new HashSet<MethodInjector>();
+	
 	public LogTraceTransformer(LogTraceConfig config){
 		this.config = config;
+		initInjectors();
 	}
 	
+
+	private void initInjectors() {
+		LogInjector logInjector = new LogInjector(config);
+		TimerInjector timerInjector = new TimerInjector(config);
+		ExceptionInjector exInjector = new ExceptionInjector(config);
+		
+		SpanCallInjector spanCallInjector = new SpanCallInjector(config);
+		SpanMethodInjector spanMethodInjector = new SpanMethodInjector(config);
+		
+		HttpURLConnectionSendInjector urlSendInjector = new HttpURLConnectionSendInjector(config);
+		HttpURLConnectionRecvInjector urlRecvInjector = new HttpURLConnectionRecvInjector(config);
+		
+		if (config.isEnableLog()) classInjectors.add(logInjector);
+		logger.fine("ClassInjector:"+classInjectors.toString());		
+
+		callInjectors.add(spanCallInjector);
+		if (config.isEnableHttpURLConnectionTrace()) {
+			callInjectors.add(urlSendInjector);
+			callInjectors.add(urlRecvInjector);
+		}
+		logger.fine("CallInjector:"+callInjectors.toString());
+		
+		methodInjectors.add(spanMethodInjector);
+		if (config.isEnableTimingLog()) {
+			methodInjectors.add(timerInjector);
+		}
+		if (config.isEnableExceptionLog()) {
+			methodInjectors.add(exInjector);
+		}
+		logger.fine("MethodInjector:"+methodInjectors.toString());		
+	}
+		
 	private CtClass interceptClass(CtClass ctclass, ClassInjector injector){
 		if (!injector.isNeedInject(ctclass.getName())) return ctclass;
 		try{
@@ -38,6 +77,7 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 				CtField ctfield = CtField.make(fieldStr, ctclass);
 				ctclass.addField(ctfield);
 			}
+			logger.finest("Inject into " + ctclass.getName());
 		}catch(CannotCompileException ce){
 			ce.printStackTrace();
 		}
@@ -155,27 +195,11 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 			    return classfileBuffer;
 			}
 			
-			LogInjector logInjector = new LogInjector(config);
-			TimerInjector timerInjector = new TimerInjector(config);
-			ExceptionInjector exInjector = new ExceptionInjector(config);
-			
-			SpanCallInjector spanCallInjector = new SpanCallInjector(config);
-			SpanMethodInjector spanMethodInjector = new SpanMethodInjector(config);
-			
-			HttpURLConnectionSendInjector urlSendInjector = new HttpURLConnectionSendInjector(config);
-			HttpURLConnectionRecvInjector urlRecvInjector = new HttpURLConnectionRecvInjector(config);
-			
-			ClassInjector[] classInjectors = new ClassInjector[]{logInjector};
-			CallInjector[] callInjectors = new CallInjector[]{spanCallInjector, urlSendInjector, urlRecvInjector};
-			MethodInjector[] methodInjectors = new MethodInjector[]{spanMethodInjector, timerInjector};
-			
 			for(ClassInjector injector : classInjectors){
 				interceptClass(ctclass, injector);
 			}
-			
             for (CtMethod ctmethod : ctclass.getDeclaredMethods()) {
 				if (cannotInject(ctmethod)) continue;
-				
 				for(CallInjector injector : callInjectors){
 					interceptCall(ctmethod, injector);
 				}
