@@ -13,7 +13,9 @@ public class LogTraceConfig{
 	private static final String CONFIG_FILE_NAME = "logtrace.properties";
 	private static File DEFAULT_CONFIG_FILE = new File(System.getProperty("user.home"), "/.logtrace/" + CONFIG_FILE_NAME);
 	
+	
 	private boolean enableHttpURLConnectionTrace = true;
+	private boolean enableJdbcTrace = false;
 	private boolean enableTimingLog = false;
 	private boolean enableExceptionLog = false;
 	private int logMethodLatency = 500;
@@ -57,7 +59,11 @@ public class LogTraceConfig{
     public boolean isEnableHttpURLConnectionTrace() {
     	return enableHttpURLConnectionTrace;
     }
-	
+   
+    public boolean isEnableJdbcTrace() {
+    	return enableJdbcTrace;
+    }
+    
 	public boolean isEnableLog() {
 		return enableTimingLog || enableExceptionLog ;
 	}
@@ -180,6 +186,7 @@ public class LogTraceConfig{
 		properties.list(System.out);
 		
 		this.enableHttpURLConnectionTrace = Boolean.parseBoolean(properties.getProperty("enableHttpURLConnectionTrace"));
+		this.enableJdbcTrace = Boolean.parseBoolean(properties.getProperty("enableJdbcTrace"));
 		this.enableTimingLog = Boolean.parseBoolean(properties.getProperty("enableTimingLog"));
 		this.enableExceptionLog = Boolean.parseBoolean(properties.getProperty("enableExceptionLog"));
 	

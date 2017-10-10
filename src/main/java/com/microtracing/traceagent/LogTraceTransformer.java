@@ -10,6 +10,7 @@ import java.util.Set;
 import com.microtracing.traceagent.injectors.ExceptionInjector;
 import com.microtracing.traceagent.injectors.HttpURLConnectionRecvInjector;
 import com.microtracing.traceagent.injectors.HttpURLConnectionSendInjector;
+import com.microtracing.traceagent.injectors.JdbcInjector;
 import com.microtracing.traceagent.injectors.LogInjector;
 import com.microtracing.traceagent.injectors.SpanCallInjector;
 import com.microtracing.traceagent.injectors.SpanMethodInjector;
@@ -50,6 +51,8 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 		HttpURLConnectionSendInjector urlSendInjector = new HttpURLConnectionSendInjector(config);
 		HttpURLConnectionRecvInjector urlRecvInjector = new HttpURLConnectionRecvInjector(config);
 		
+		JdbcInjector jdbcInjector = new JdbcInjector(config);
+		
 		if (config.isEnableLog()) classInjectors.add(logInjector);
 		logger.fine("ClassInjector:"+classInjectors.toString());		
 
@@ -57,6 +60,9 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 		if (config.isEnableHttpURLConnectionTrace()) {
 			callInjectors.add(urlSendInjector);
 			callInjectors.add(urlRecvInjector);
+		}
+		if (config.isEnableJdbcTrace()) {
+			callInjectors.add(jdbcInjector);
 		}
 		logger.fine("CallInjector:"+callInjectors.toString());
 		
