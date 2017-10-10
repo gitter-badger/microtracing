@@ -177,6 +177,8 @@ public class LogTraceConfig{
 	}
 
 	private void loadConfig(Properties properties)  {
+		properties.list(System.out);
+		
 		this.enableHttpURLConnectionTrace = Boolean.parseBoolean(properties.getProperty("enableHttpURLConnectionTrace"));
 		this.enableTimingLog = Boolean.parseBoolean(properties.getProperty("enableTimingLog"));
 		this.enableExceptionLog = Boolean.parseBoolean(properties.getProperty("enableExceptionLog"));
