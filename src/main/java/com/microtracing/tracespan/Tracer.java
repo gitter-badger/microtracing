@@ -19,10 +19,13 @@ public class Tracer{
 	public Tracer(String traceId){
 		if (traceId == null){
 			traceId = genTraceId();
-			//this.threadRootSpan = new Span(traceId, null, traceId, Thread.currentThread().getName());
+			this.traceId = traceId;
+			//use traceId as rootSpanId
+			this.threadRootSpan = new Span(traceId, null, traceId, Thread.currentThread().getName());
+		}else {
+			this.traceId = traceId;
+			this.threadRootSpan = new Span(traceId, null, null, Thread.currentThread().getName());
 		}
-		this.traceId = traceId;
-		this.threadRootSpan = new Span(traceId, null, null, Thread.currentThread().getName());
 		setCurrentSpan(this.threadRootSpan);
 	}
 	

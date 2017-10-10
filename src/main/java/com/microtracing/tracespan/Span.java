@@ -30,9 +30,10 @@ public class Span{
 	public static final String SPAN_ID_NAME = "X-B3-SpanId";
 	public static final String PARENT_ID_NAME = "X-B3-ParentSpanId";
 	public static final String SPAN_NAME_NAME = "X-Span-Name";
+	public static final String SPAN_LEVEL_NAME = "X-Span-Level";
 	
 	public static final Set<String> SPAN_HEADERS = new HashSet<String>(
-			Arrays.asList(PARENT_ID_NAME, TRACE_ID_NAME,SPAN_ID_NAME, SPAN_NAME_NAME));
+			Arrays.asList(PARENT_ID_NAME, TRACE_ID_NAME,SPAN_ID_NAME, SPAN_NAME_NAME, SPAN_LEVEL_NAME));
 	
 
 	public static final String SPAN_START = "SPAN_START";  
@@ -51,6 +52,7 @@ public class Span{
 	private String traceId;
 	private String spanId;
 	private String name;
+	private int level;
 	
 	private boolean remote;
 
@@ -67,8 +69,17 @@ public class Span{
 		this.traceId = traceId;
 		this.spanId = spanId == null?genSpanId():spanId;
 		this.name = operationName;
-		this.parentSpan = parentSpan;
-		
+		setParentSpan(parentSpan);
+	}
+	
+	
+	public void setParentSpan(Span parentSpan) {
+		this.parentSpan= parentSpan;
+		this.level = parentSpan==null?0:parentSpan.getLevel()+1;
+	}
+	
+	public Span getParentSpan() {
+		return this.parentSpan;
 	}
 	
 	public void setTraceId(String traceId) {
@@ -115,6 +126,10 @@ public class Span{
 	public String getName() {
 		return name;
 	}
+	
+	public int getLevel() {
+		return level;
+	}
 
 	private String genSpanId(){
 		String[]  uuid = UUID.randomUUID().toString().split("-");
@@ -128,14 +143,7 @@ public class Span{
 		return child;
 	}		
 	
-	
-	public void setParentSpan(Span parentSpan) {
-		this.parentSpan= parentSpan;
-	}
-	
-	public Span getParentSpan() {
-		return this.parentSpan;
-	}
+
 	
 	public Set<Span> getChildSpans() {
 		return childSpans;
@@ -249,13 +257,11 @@ public class Span{
 		if(this.parentSpan!=null) sb.append(", parentId=").append(this.getParentSpanId());
 		sb.append(", spanId=").append(this.spanId);
 		sb.append(", spanName=\"").append(this.name).append("\"");
+		sb.append(", spanLevel=\"").append(this.level).append("\"");
 		if(this.remote) sb.append(", remote=").append(this.remote);
 		sb.append("}");
 		return sb.toString();
 	}
-	
-	
-	
 	
 	
 	public static Span buildSpan(Map<String, String> carrier) {
