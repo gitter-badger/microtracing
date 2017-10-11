@@ -1,11 +1,11 @@
-package com.microtracing.traceagent.injectors;
-import com.microtracing.traceagent.CallInjector;
-import com.microtracing.traceagent.LogTraceConfig;
-import com.microtracing.traceagent.MethodInjector;
+package com.microtracing.logtrace.injectors;
+import com.microtracing.logtrace.CallInjector;
+import com.microtracing.logtrace.LogTraceConfig;
 public class SpanCallInjector implements CallInjector{
 
+	protected final static String DEFAULT_SPAN_NAME = "CALL:%1$s.%2$s";
 
-	private final static String initAndStartSpan 
+	protected final static String initAndStartSpan 
         = "  _$tracer = com.microtracing.tracespan.Tracer.getTracer(); \n"
         + "  _$span =  _$tracer.getCurrentSpan(); \n"
         + "  String _$spanName = \"%1$s\"; \n"
@@ -14,16 +14,16 @@ public class SpanCallInjector implements CallInjector{
         +"     _$span.start();  \n"
         + "  } \n";
 
-    private final static  String methodCallBefore 
+	protected final static  String methodCallBefore 
         = "  com.microtracing.tracespan.Tracer _$tracer; \n"
         + "  com.microtracing.tracespan.Span _$span ; \n"
         +    initAndStartSpan
         + "  try{ \n";
 
     
-    private final static  String methodCallAfter  
+	protected final static  String methodCallAfter  
         = "  }catch(Exception _$e){ \n"
-        + "    if(_$span != null) _$span.logException(_$e); \n"
+        + "    if(_$span != null) _$span.addException(_$e); \n"
         + "    throw _$e;  \n"
         + "  }finally{ \n"
         + "    if(_$span != null) _$span.stop(); \n"
@@ -31,8 +31,9 @@ public class SpanCallInjector implements CallInjector{
                             
     
     
-    private LogTraceConfig config;
-	private String spanName = "CALL:%1$s.%2$s";
+    protected LogTraceConfig config;
+    
+	private String spanName = DEFAULT_SPAN_NAME;
 	    
     public SpanCallInjector(LogTraceConfig config){
         this.config = config;

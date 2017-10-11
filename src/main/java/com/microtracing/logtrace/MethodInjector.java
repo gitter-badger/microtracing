@@ -1,4 +1,4 @@
-package com.microtracing.traceagent;
+package com.microtracing.logtrace;
 public interface MethodInjector {
 	public boolean isNeedProcessInject(String className, String methodName);
 	public String[][] getMethodVariables(String className, String methodName);

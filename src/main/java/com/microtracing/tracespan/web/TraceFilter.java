@@ -1,6 +1,7 @@
 package com.microtracing.tracespan.web;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -22,6 +23,9 @@ public class TraceFilter implements Filter {
 	
 	protected static final String TRACER_REQUEST_ATTR = TraceFilter.class.getName() + ".TRACER";
 	
+	protected static final String IGNORE_URIS = ".*\\.(js|css|gif|jpg|jpeg|png|bmp|ico|swf|mp3|mp4|mov|avi|zip|rar|jar|pdf|doc|docx|xls|xlsx|ppt|pptx)$";
+	protected static final Pattern IGNORE_URIS_PATTERN = Pattern.compile(IGNORE_URIS);
+	
 	private FilterConfig filterConfig;
 	
 	@Override
@@ -29,12 +33,23 @@ public class TraceFilter implements Filter {
 		this.filterConfig = filterConfig;
 		
 	}
+	
+	private boolean ignoreTrace(HttpServletRequest request){
+		return ("GET".equals(request.getMethod()) 
+				&& IGNORE_URIS_PATTERN.matcher( request.getRequestURI() ).find());
+	}
 
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) servletRequest;
 		HttpServletResponse response = (HttpServletResponse) servletResponse;
+		
+		if (ignoreTrace(request)){
+			chain.doFilter(request, response);
+			return;
+		}
+		
 		boolean isFirst = request.getAttribute(TRACER_REQUEST_ATTR)==null;
 		Tracer tracer = getTracer(request);
 		Span rootSpan = tracer.getThreadRootSpan();

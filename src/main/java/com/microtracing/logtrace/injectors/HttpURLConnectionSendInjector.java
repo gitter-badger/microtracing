@@ -1,8 +1,8 @@
-package com.microtracing.traceagent.injectors;
+package com.microtracing.logtrace.injectors;
 
-import com.microtracing.traceagent.CallInjector;
-import com.microtracing.traceagent.ClassInjector;
-import com.microtracing.traceagent.LogTraceConfig;
+import com.microtracing.logtrace.CallInjector;
+import com.microtracing.logtrace.ClassInjector;
+import com.microtracing.logtrace.LogTraceConfig;
 
 
 public class HttpURLConnectionSendInjector implements CallInjector{
@@ -21,12 +21,12 @@ public class HttpURLConnectionSendInjector implements CallInjector{
       + "  } \n"
       + "  com.microtracing.tracespan.web.HttpURLConnectionInterceptor _$inter = new com.microtracing.tracespan.web.HttpURLConnectionInterceptor(); \n"
       + "  if(_$span != null) _$inter.inject(_$span, $0); \n"
-      + "  if(_$span != null) _$span.logEvent(_$span.CLIENT_SEND); \n"
+      + "  if(_$span != null) _$span.addEvent(_$span.CLIENT_SEND); \n"
       + "  try{ \n";
 	
 	private final static  String methodCallAfter  = "  \n"
       + "  }catch(Exception _$e){ \n"
-      + "    if(_$span != null) _$span.logException(_$e); \n"
+      + "    if(_$span != null) _$span.addException(_$e); \n"
       + "    if(_$span != null) _$span.stop(); \n"
       + "    throw _$e;  \n"
       + "  }finally{ \n"

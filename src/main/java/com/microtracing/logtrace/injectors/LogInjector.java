@@ -1,8 +1,8 @@
-package com.microtracing.traceagent.injectors;
-import com.microtracing.traceagent.CallInjector;
-import com.microtracing.traceagent.ClassInjector;
-import com.microtracing.traceagent.LogTraceConfig;
-import com.microtracing.traceagent.MethodInjector;
+package com.microtracing.logtrace.injectors;
+import com.microtracing.logtrace.CallInjector;
+import com.microtracing.logtrace.ClassInjector;
+import com.microtracing.logtrace.LogTraceConfig;
+import com.microtracing.logtrace.MethodInjector;
 public class LogInjector implements ClassInjector,CallInjector,MethodInjector{
     private final static String[] classFields = new String[]{
         //"private final static java.util.logging.Logger _$logger = java.util.logging.Logger.getLogger(\"%1$s\");"

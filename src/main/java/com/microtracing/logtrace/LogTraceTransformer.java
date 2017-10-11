@@ -1,4 +1,4 @@
-package com.microtracing.traceagent;
+package com.microtracing.logtrace;
 import java.io.ByteArrayInputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -7,14 +7,14 @@ import java.security.ProtectionDomain;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.microtracing.traceagent.injectors.ExceptionInjector;
-import com.microtracing.traceagent.injectors.HttpURLConnectionRecvInjector;
-import com.microtracing.traceagent.injectors.HttpURLConnectionSendInjector;
-import com.microtracing.traceagent.injectors.JdbcInjector;
-import com.microtracing.traceagent.injectors.LogInjector;
-import com.microtracing.traceagent.injectors.SpanCallInjector;
-import com.microtracing.traceagent.injectors.SpanMethodInjector;
-import com.microtracing.traceagent.injectors.TimerInjector;
+import com.microtracing.logtrace.injectors.ExceptionInjector;
+import com.microtracing.logtrace.injectors.HttpURLConnectionRecvInjector;
+import com.microtracing.logtrace.injectors.HttpURLConnectionSendInjector;
+import com.microtracing.logtrace.injectors.JdbcInjector;
+import com.microtracing.logtrace.injectors.LogInjector;
+import com.microtracing.logtrace.injectors.SpanCallInjector;
+import com.microtracing.logtrace.injectors.SpanMethodInjector;
+import com.microtracing.logtrace.injectors.TimerInjector;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;

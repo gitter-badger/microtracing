@@ -1,6 +1,6 @@
-package com.microtracing.traceagent.injectors;
-import com.microtracing.traceagent.LogTraceConfig;
-import com.microtracing.traceagent.MethodInjector;
+package com.microtracing.logtrace.injectors;
+import com.microtracing.logtrace.LogTraceConfig;
+import com.microtracing.logtrace.MethodInjector;
 public class ExceptionInjector implements MethodInjector{
 	
 	private final static String[][] methodVariables = new String[0][0];

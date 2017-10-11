@@ -1,4 +1,4 @@
-package com.microtracing.traceagent;
+package com.microtracing.logtrace;
 public interface CallInjector {
 	public boolean isNeedCallInject(String className, String methodName);
 	public String getMethodCallBefore(String className, String methodName);

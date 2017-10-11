@@ -1,4 +1,4 @@
-package com.microtracing.traceagent;
+package com.microtracing.logtrace;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -171,10 +171,11 @@ public class LogTraceConfig{
 		Properties properties = new Properties();
 		try {
 			properties.load(new FileReader(path)); 
+			properties.list(System.out);
 			
-			//Properties context = new Properties(); 
-			//context.putAll(System.getProperties());
-			//context.putAll(properties);
+			Properties context = new Properties(); 
+			context.putAll(System.getProperties());
+			context.putAll(properties);
 			
 			loadConfig(properties);
 		} catch (Exception e) {
@@ -183,17 +184,15 @@ public class LogTraceConfig{
 	}
 
 	private void loadConfig(Properties properties)  {
-		properties.list(System.out);
-		
-		this.enableHttpURLConnectionTrace = Boolean.parseBoolean(properties.getProperty("enableHttpURLConnectionTrace"));
-		this.enableJdbcTrace = Boolean.parseBoolean(properties.getProperty("enableJdbcTrace"));
-		this.enableTimingLog = Boolean.parseBoolean(properties.getProperty("enableTimingLog"));
-		this.enableExceptionLog = Boolean.parseBoolean(properties.getProperty("enableExceptionLog"));
+		this.enableHttpURLConnectionTrace = Boolean.parseBoolean(properties.getProperty("logtrace.enableHttpURLConnectionTrace"));
+		this.enableJdbcTrace = Boolean.parseBoolean(properties.getProperty("logtrace.enableJdbcTrace"));
+		this.enableTimingLog = Boolean.parseBoolean(properties.getProperty("logtrace.enableTimingLog"));
+		this.enableExceptionLog = Boolean.parseBoolean(properties.getProperty("logtrace.enableExceptionLog"));
 	
-		String slogMethodLatency = properties.getProperty("logMethodLatency");
+		String slogMethodLatency = properties.getProperty("logtrace.logMethodLatency");
 		if (slogMethodLatency!=null) this.logMethodLatency = Integer.parseInt(slogMethodLatency);
 		
-		String sIncludePackages = properties.getProperty("includePackages");
+		String sIncludePackages = properties.getProperty("logtrace.includePackages");
 		if (sIncludePackages!=null && sIncludePackages.trim().length()>0){
 			String[] _includes = sIncludePackages.split(";");
 			for (String pack : _includes) {
@@ -201,7 +200,7 @@ public class LogTraceConfig{
 			}
 		}
 		
-		String sTraceMethodCall = properties.getProperty("traceMethodCall");
+		String sTraceMethodCall = properties.getProperty("logtrace.traceMethodCall");
 		if (sTraceMethodCall!=null && sTraceMethodCall.trim().length()>0){
 			String[] _methods = sTraceMethodCall.split(";");
 			for (String pack : _methods) {
@@ -209,7 +208,7 @@ public class LogTraceConfig{
 			}
 		}
 		
-		String sTraceMethodProcess = properties.getProperty("traceMethodProcess");
+		String sTraceMethodProcess = properties.getProperty("logtrace.traceMethodProcess");
 		if (sTraceMethodProcess!=null && sTraceMethodProcess.trim().length()>0){
 			String[] _methods = sTraceMethodProcess.split(";");
 			for (String pack : _methods) {

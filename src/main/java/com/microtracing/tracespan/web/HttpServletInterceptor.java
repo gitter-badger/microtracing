@@ -35,7 +35,7 @@ public class HttpServletInterceptor  implements ServerSpanInterceptor<HttpServle
 		clientSpan.setRemote(true);
 		logger.info(clientSpan.toString() + " extracted.");
 		
-		clientSpan.logEvent(Span.SERVER_RECV);
+		clientSpan.addEvent(Span.SERVER_RECV);
 		
 		Tracer tracer = Tracer.getTracer(clientSpan.getTraceId());
 		tracer.setClientSpan(clientSpan);

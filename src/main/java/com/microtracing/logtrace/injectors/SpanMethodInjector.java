@@ -1,10 +1,14 @@
-package com.microtracing.traceagent.injectors;
-import com.microtracing.traceagent.CallInjector;
-import com.microtracing.traceagent.LogTraceConfig;
-import com.microtracing.traceagent.MethodInjector;
+package com.microtracing.logtrace.injectors;
+import com.microtracing.logtrace.CallInjector;
+import com.microtracing.logtrace.LogTraceConfig;
+import com.microtracing.logtrace.MethodInjector;
 public class SpanMethodInjector implements MethodInjector{
 
-
+    private final static String[][] methodVariables = new String[][]{
+        {"com.microtracing.tracespan.Tracer","_$tracer"},
+        {"com.microtracing.tracespan.Span","_$span"}
+    };
+    
 	private final static String initAndStartSpan 
         = "  _$tracer = com.microtracing.tracespan.Tracer.getTracer(); \n"
         + "  _$span =  _$tracer.getCurrentSpan(); \n"
@@ -22,11 +26,7 @@ public class SpanMethodInjector implements MethodInjector{
         +"     _$span = null;  \n"
         + "  } \n";
 
-    private final static String[][] methodVariables = new String[][]{
-        {"com.microtracing.tracespan.Tracer","_$tracer"},
-        {"com.microtracing.tracespan.Span","_$span"}
-    };
-    
+
     private final static  String methodProcessStart 
         = "  { \n"
         +      initAndStartSpan
@@ -34,26 +34,29 @@ public class SpanMethodInjector implements MethodInjector{
                                                  
     private final static  String methodProcessReturn  
         = "  { \n"
-        +      getSpan 
+        // can use methodVariables
+        //+      getSpan 
         + "    if(_$span != null) _$span.stop(); \n"
         + "  } \n";
                                                     
     private final static  String methodProcessException 
         = "  { \n"
+        // cannot use methodVariables
         +      getSpan 
         + "    if(_$span != null) { \n"
-        + "       _$span.logException(_$e); \n"
+        + "       _$span.addException(_$e); \n"
         + "       _$span.stop(); \n"
         + "    } \n"
         + "    throw _$e;  \n"
         + "  } \n";
                                                     
-    private final static  String methodProcessFinally 
+    private final static  String methodProcessFinally ="";
+    /* stopped in return & exception catch block
         = "  { \n"
         +      getSpan 
         + "    if(_$span != null) _$span.stop(); \n"
         + "  } \n";
-                                
+    */                            
     
     
     private LogTraceConfig config;
