@@ -2,6 +2,7 @@ package com.microtracing.tracespan;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -63,6 +64,8 @@ public class Span{
 	private long endTime;
 	
 	private List<SpanEvent> events = new ArrayList<SpanEvent>(6);
+	
+	private Map<String,String> tags = new HashMap<String,String>();
 
 	
 	public Span(String traceId, Span parentSpan, String spanId, String operationName){
@@ -130,6 +133,21 @@ public class Span{
 	public int getLevel() {
 		return level;
 	}
+	
+	
+	public void tag(String tagName, String value) {
+		if (value!=null) {
+			this.tags.put(tagName,  value);
+		}
+	}
+	
+	public String getTag(String tagName) {
+		return this.tags.get(tagName);
+	}
+	
+	public Map<String, String> tags(){
+		return Collections.unmodifiableMap(this.tags);
+	}
 
 	private String genSpanId(){
 		String[]  uuid = UUID.randomUUID().toString().split("-");
@@ -168,7 +186,9 @@ public class Span{
 		endTime = System.currentTimeMillis();
 		logFormatEvent(SPAN_END,"duration=%s", (endTime-startTime) );
 		
-		Tracer.getTracer().setCurrentSpan(this.parentSpan);
+		if (Tracer.getTracer().getCurrentSpan()==this) {
+			Tracer.getTracer().setCurrentSpan(this.parentSpan);
+		}
 		if (this.parentSpan != null) {
 			//detach
 			this.parentSpan.getChildSpans().remove(this);
