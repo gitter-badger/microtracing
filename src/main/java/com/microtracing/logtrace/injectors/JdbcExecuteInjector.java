@@ -2,15 +2,26 @@ package com.microtracing.logtrace.injectors;
 
 import com.microtracing.logtrace.LogTraceConfig;
 
-public class JdbcInjector extends SpanCallInjector {
+public class JdbcExecuteInjector extends SpanCallInjector {
 
 
-	private static final  String JDBC_SPAN_NAME = "JDBC_CALL:%1$s.%2$s";
-			
+	protected final static String STMT_SPAN_NAME = "JDBC:%1$s";
 	
-	public JdbcInjector(LogTraceConfig config){
+	public JdbcExecuteInjector(LogTraceConfig config){
 		super(config);
-		super.setSpanName(JDBC_SPAN_NAME);
+		super.setSpanName(STMT_SPAN_NAME);
+		
+		super.initAndStartSpan = ""; //started in JdbcStatementInjector
+		
+		super.methodCallBefore 
+				= super.methodCallBefore
+				+ "    if(_$span != null) _$span.addEvent(_$span.CLIENT_SEND); \n";
+		
+		super.methodCallAfter  
+				= "    if(_$span != null && $args.length>0 && $args[0]!=null) _$span.addTag(\"sql\", $args[0].toString()); \n"
+				+ "    if(_$span != null) _$span.addEvent(_$span.CLIENT_RECV);\n"
+				+ super.methodCallAfter;
+		
 	}
 	
 	public boolean isNeedInject(String className) {

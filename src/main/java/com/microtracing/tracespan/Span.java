@@ -64,7 +64,7 @@ public class Span{
 	
 	private List<SpanEvent> events = new ArrayList<SpanEvent>(6);
 
-	private boolean autoPrintEventLog = true;
+	private boolean autoPrintLog = true;
 	
 	public Span(String traceId, Span parentSpan, String spanId, String operationName){
 		this.traceId = traceId;
@@ -131,14 +131,20 @@ public class Span{
 	public int getLevel() {
 		return level;
 	}
+	
+	public void addTag(String tagName, String value){
+		if (autoPrintLog){
+			log("SpanTag{spanId="+this.spanId+", "+tagName + "=\"" + value + "\"}" );
+		}
+	}
 
-	public boolean isAutoPrintEventLog() {
-		return autoPrintEventLog;
+	public boolean isAutoPrintLog() {
+		return autoPrintLog;
 	}
 
 
-	public void setAutoPrintEventLog(boolean autoPrintEventLog) {
-		this.autoPrintEventLog = autoPrintEventLog;
+	public void setAutoPrintLog(boolean autoPrintLog) {
+		this.autoPrintLog = autoPrintLog;
 	}
 
 
@@ -212,7 +218,7 @@ public class Span{
 		SpanEvent e = new SpanEvent(this.spanId, System.currentTimeMillis(), event, msg);
 		events.add(e);
 		
-		if (autoPrintEventLog){
+		if (autoPrintLog){
 			logEvent(e);
 		}
 	}
@@ -282,7 +288,7 @@ public class Span{
 		if(this.parentSpan!=null) sb.append(", parentId=").append(this.getParentSpanId());
 		sb.append(", spanId=").append(this.spanId);
 		sb.append(", spanName=\"").append(this.name).append("\"");
-		sb.append(", spanLevel=\"").append(this.level).append("\"");
+		sb.append(", spanLevel=").append(this.level).append("");
 		if(this.remote) sb.append(", remote=").append(this.remote);
 		sb.append("}");
 		return sb.toString();

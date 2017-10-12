@@ -5,7 +5,7 @@ public class SpanCallInjector implements CallInjector{
 
 	protected final static String DEFAULT_SPAN_NAME = "CALL:%1$s.%2$s";
 
-	protected final static String initAndStartSpan 
+	protected  String initAndStartSpan 
         = "  _$tracer = com.microtracing.tracespan.Tracer.getTracer(); \n"
         + "  _$span =  _$tracer.getCurrentSpan(); \n"
         + "  String _$spanName = \"%1$s\"; \n"
@@ -14,14 +14,14 @@ public class SpanCallInjector implements CallInjector{
         +"     _$span.start();  \n"
         + "  } \n";
 
-	protected final static  String methodCallBefore 
+	protected  String methodCallBefore 
         = "  com.microtracing.tracespan.Tracer _$tracer; \n"
         + "  com.microtracing.tracespan.Span _$span ; \n"
         +    initAndStartSpan
         + "  try{ \n";
 
     
-	protected final static  String methodCallAfter  
+	protected   String methodCallAfter  
         = "  }catch(Exception _$e){ \n"
         + "    if(_$span != null) _$span.addException(_$e); \n"
         + "    throw _$e;  \n"

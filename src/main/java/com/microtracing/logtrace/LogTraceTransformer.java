@@ -10,7 +10,8 @@ import java.util.Set;
 import com.microtracing.logtrace.injectors.ExceptionInjector;
 import com.microtracing.logtrace.injectors.HttpURLConnectionRecvInjector;
 import com.microtracing.logtrace.injectors.HttpURLConnectionSendInjector;
-import com.microtracing.logtrace.injectors.JdbcInjector;
+import com.microtracing.logtrace.injectors.JdbcExecuteInjector;
+import com.microtracing.logtrace.injectors.JdbcStatementInjector;
 import com.microtracing.logtrace.injectors.LogInjector;
 import com.microtracing.logtrace.injectors.SpanCallInjector;
 import com.microtracing.logtrace.injectors.SpanMethodInjector;
@@ -51,7 +52,8 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 		HttpURLConnectionSendInjector urlSendInjector = new HttpURLConnectionSendInjector(config);
 		HttpURLConnectionRecvInjector urlRecvInjector = new HttpURLConnectionRecvInjector(config);
 		
-		JdbcInjector jdbcInjector = new JdbcInjector(config);
+		JdbcStatementInjector jdbcStmtInjector = new JdbcStatementInjector(config);
+		JdbcExecuteInjector jdbcExeInjector = new JdbcExecuteInjector(config);
 		
 		if (config.isEnableLog()) classInjectors.add(logInjector);
 		logger.fine("ClassInjector:"+classInjectors.toString());		
@@ -62,7 +64,8 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 			callInjectors.add(urlRecvInjector);
 		}
 		if (config.isEnableJdbcTrace()) {
-			callInjectors.add(jdbcInjector);
+			callInjectors.add(jdbcStmtInjector);
+			callInjectors.add(jdbcExeInjector);
 		}
 		logger.fine("CallInjector:"+callInjectors.toString());
 		
