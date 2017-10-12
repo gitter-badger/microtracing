@@ -1,15 +1,16 @@
 package com.microtracing.logtrace.injectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.microtracing.logtrace.CallInjector;
-import com.microtracing.logtrace.ClassInjector;
 import com.microtracing.logtrace.LogTraceConfig;
 import com.microtracing.logtrace.LogTraceTransformer;
 
 
 public class HttpURLConnectionRecvInjector implements CallInjector{
-	//private static final org.apache.log4j.Logger logger =  org.apache.log4j.LogManager.getLogger(HttpURLConnectionRecvInjector.class);
-	private static final java.util.logging.Logger logger =  java.util.logging.Logger.getLogger(HttpURLConnectionRecvInjector.class.getName());
-
+	private static final Logger logger =  LoggerFactory.getLogger(HttpURLConnectionRecvInjector.class);
+	
 	private final static  String methodCallBefore 
       = "   com.microtracing.tracespan.Tracer _$tracer = com.microtracing.tracespan.Tracer.getTracer(); \n"
       + "   com.microtracing.tracespan.Span _$span =  _$tracer.getCurrentSpan(); \n"
@@ -40,14 +41,14 @@ public class HttpURLConnectionRecvInjector implements CallInjector{
 	@Override
 	public  String getMethodCallBefore(String className, String methodName){
 		String s = String.format(methodCallBefore,className,methodName);
-		logger.fine(String.format("inject before %s.%s\n%s",className,methodName,s));
+		logger.debug(String.format("inject before %s.%s\n%s",className,methodName,s));
 		return s;
 	}
 	
 	@Override
 	public  String getMethodCallAfter(String className, String methodName){
 		String s = String.format(methodCallAfter,className,methodName);
-		logger.fine(String.format("inject after %s.%s\n%s",className,methodName,s));
+		logger.debug(String.format("inject after %s.%s\n%s",className,methodName,s));
 		return s;
 	}	
 	
