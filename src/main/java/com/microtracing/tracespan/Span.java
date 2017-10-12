@@ -67,6 +67,7 @@ public class Span{
 	
 	private Map<String,String> tags = new HashMap<String,String>();
 
+	private boolean autoPrintLog = true;
 	
 	public Span(String traceId, Span parentSpan, String spanId, String operationName){
 		this.traceId = traceId;
@@ -138,6 +139,9 @@ public class Span{
 	public void tag(String tagName, String value) {
 		if (value!=null) {
 			this.tags.put(tagName,  value);
+			if (autoPrintLog){
+				log("SpanTag{spanId="+this.spanId+", "+tagName + "=\"" + value + "\"}" );
+			}			
 		}
 	}
 	
@@ -147,6 +151,14 @@ public class Span{
 	
 	public Map<String, String> tags(){
 		return Collections.unmodifiableMap(this.tags);
+	}
+
+	public boolean isAutoPrintLog() {
+		return autoPrintLog;
+	}
+
+	public void setAutoPrintLog(boolean autoPrintLog) {
+		this.autoPrintLog = autoPrintLog;
 	}
 
 	private String genSpanId(){
@@ -175,7 +187,7 @@ public class Span{
 		}else {
 			startTime = System.currentTimeMillis();
 			//log(this.toString() + " started.");
-			logEvent(SPAN_START);
+			addEvent(SPAN_START);
 		}
 	}
 	
@@ -184,7 +196,7 @@ public class Span{
 			logger.warn(this.spanId + " span was not started!");
 		}
 		endTime = System.currentTimeMillis();
-		logFormatEvent(SPAN_END,"duration=%s", (endTime-startTime) );
+		addFormatEvent(SPAN_END,"duration=%s", (endTime-startTime) );
 		
 		if (Tracer.getTracer().getCurrentSpan()==this) {
 			Tracer.getTracer().setCurrentSpan(this.parentSpan);
@@ -195,11 +207,11 @@ public class Span{
 		}
 	}
 	
-	public void logEvent(String event) {
-		logFormatEvent(event, null);
+	public void addEvent(String event) {
+		addFormatEvent(event, null);
 	}
 	
-	public void logFormatEvent(String event, String format, Object... params) {
+	public void addFormatEvent(String event, String format, Object... params) {
 		String msg = null;
 		if (format != null) {
 			if (params != null) {
@@ -221,16 +233,23 @@ public class Span{
 		SpanEvent e = new SpanEvent(this.spanId, System.currentTimeMillis(), event, msg);
 		events.add(e);
 		
-		String log = e.toString();
-		if (SPAN_START.equals(event)) {
+		if (autoPrintLog){
+			logEvent(e);
+		}
+	}
+	
+	public void addException(Exception ex) {
+		addFormatEvent(SPAN_ERROR, ex.toString());
+	}
+	
+	private void logEvent(SpanEvent event){
+		String log = event.toString();
+		if (SPAN_START.equals(event.getEvent())) {
 			log = log + " " +this.toString();
 		}
 		log(log);
 	}
-	
-	public void logException(Exception ex) {
-		logFormatEvent(SPAN_ERROR, ex.toString());
-	}
+
 	
 	private void log(String log) {
 		if (!this.traceId.equals(MDC.get(Span.TRACE_ID_NAME))) MDC.put(Span.TRACE_ID_NAME, this.traceId);
@@ -243,6 +262,13 @@ public class Span{
 	        }
 		}
 	}
+	
+	
+	public void logAllEvent(){
+		for (SpanEvent e : this.events){
+			logEvent(e);
+		}
+	}	
 	
 	
 	
@@ -277,7 +303,7 @@ public class Span{
 		if(this.parentSpan!=null) sb.append(", parentId=").append(this.getParentSpanId());
 		sb.append(", spanId=").append(this.spanId);
 		sb.append(", spanName=\"").append(this.name).append("\"");
-		sb.append(", spanLevel=\"").append(this.level).append("\"");
+		sb.append(", spanLevel=").append(this.level);
 		if(this.remote) sb.append(", remote=").append(this.remote);
 		sb.append("}");
 		return sb.toString();

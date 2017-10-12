@@ -20,12 +20,12 @@ class TracePrintWriter extends PrintWriter {
 	}
 
 	@Override public void flush() {
-		span.logEvent(Span.SERVER_SEND);
+		span.addEvent(Span.SERVER_SEND);
 		this.delegate.flush();
 	}
 
 	@Override public void close() {
-		span.logEvent(Span.SERVER_SEND);
+		span.addEvent(Span.SERVER_SEND);
 		this.delegate.close();
 	}
 

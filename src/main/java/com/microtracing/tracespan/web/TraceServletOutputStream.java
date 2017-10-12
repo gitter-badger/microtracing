@@ -100,12 +100,12 @@ class TraceServletOutputStream extends ServletOutputStream {
 	}
 
 	@Override public void flush() throws IOException {
-		span.logEvent(Span.SERVER_SEND);
+		span.addEvent(Span.SERVER_SEND);
 		this.delegate.flush();
 	}
 
 	@Override public void close() throws IOException {
-		span.logEvent(Span.SERVER_SEND);
+		span.addEvent(Span.SERVER_SEND);
 		this.delegate.close();
 	}
 }

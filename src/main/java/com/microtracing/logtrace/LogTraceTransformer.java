@@ -1,4 +1,4 @@
-package com.microtracing.traceagent;
+package com.microtracing.logtrace;
 import java.io.ByteArrayInputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -7,14 +7,15 @@ import java.security.ProtectionDomain;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.microtracing.traceagent.injectors.ExceptionInjector;
-import com.microtracing.traceagent.injectors.HttpURLConnectionRecvInjector;
-import com.microtracing.traceagent.injectors.HttpURLConnectionSendInjector;
-import com.microtracing.traceagent.injectors.JdbcInjector;
-import com.microtracing.traceagent.injectors.LogInjector;
-import com.microtracing.traceagent.injectors.SpanCallInjector;
-import com.microtracing.traceagent.injectors.SpanMethodInjector;
-import com.microtracing.traceagent.injectors.TimerInjector;
+import com.microtracing.logtrace.injectors.ExceptionInjector;
+import com.microtracing.logtrace.injectors.HttpURLConnectionRecvInjector;
+import com.microtracing.logtrace.injectors.HttpURLConnectionSendInjector;
+import com.microtracing.logtrace.injectors.JdbcExecuteInjector;
+import com.microtracing.logtrace.injectors.JdbcStatementInjector;
+import com.microtracing.logtrace.injectors.LogInjector;
+import com.microtracing.logtrace.injectors.SpanCallInjector;
+import com.microtracing.logtrace.injectors.SpanMethodInjector;
+import com.microtracing.logtrace.injectors.TimerInjector;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -51,7 +52,8 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 		HttpURLConnectionSendInjector urlSendInjector = new HttpURLConnectionSendInjector(config);
 		HttpURLConnectionRecvInjector urlRecvInjector = new HttpURLConnectionRecvInjector(config);
 		
-		JdbcInjector jdbcInjector = new JdbcInjector(config);
+		JdbcStatementInjector jdbcStmtInjector = new JdbcStatementInjector(config);
+		JdbcExecuteInjector jdbcExeInjector = new JdbcExecuteInjector(config);
 		
 		if (config.isEnableLog()) classInjectors.add(logInjector);
 		logger.fine("ClassInjector:"+classInjectors.toString());		
@@ -62,7 +64,8 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 			callInjectors.add(urlRecvInjector);
 		}
 		if (config.isEnableJdbcTrace()) {
-			callInjectors.add(jdbcInjector);
+			callInjectors.add(jdbcStmtInjector);
+			callInjectors.add(jdbcExeInjector);
 		}
 		logger.fine("CallInjector:"+callInjectors.toString());
 		

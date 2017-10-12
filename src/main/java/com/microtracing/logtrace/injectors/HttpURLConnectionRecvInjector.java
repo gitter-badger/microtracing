@@ -1,9 +1,9 @@
-package com.microtracing.traceagent.injectors;
+package com.microtracing.logtrace.injectors;
 
-import com.microtracing.traceagent.CallInjector;
-import com.microtracing.traceagent.ClassInjector;
-import com.microtracing.traceagent.LogTraceConfig;
-import com.microtracing.traceagent.LogTraceTransformer;
+import com.microtracing.logtrace.CallInjector;
+import com.microtracing.logtrace.ClassInjector;
+import com.microtracing.logtrace.LogTraceConfig;
+import com.microtracing.logtrace.LogTraceTransformer;
 
 
 public class HttpURLConnectionRecvInjector implements CallInjector{
@@ -22,9 +22,9 @@ public class HttpURLConnectionRecvInjector implements CallInjector{
       + "   try{ \n";
 	
 	private final static  String methodCallAfter  
-	  = "    if(_$span != null) _$span.logEvent(_$span.CLIENT_RECV);\n"
+	  = "    if(_$span != null) _$span.addEvent(_$span.CLIENT_RECV);\n"
       + "  }catch(Exception _$e){ \n"
-      + "    if(_$span != null) _$span.logException(_$e); \n"
+      + "    if(_$span != null) _$span.addException(_$e); \n"
       + "    throw _$e;  \n"
       + "  }finally{ \n"
       + "    if(_$span != null) _$span.stop(); \n"

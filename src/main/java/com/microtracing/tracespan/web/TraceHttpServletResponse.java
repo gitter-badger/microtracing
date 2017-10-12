@@ -24,7 +24,7 @@ class TraceHttpServletResponse extends HttpServletResponseWrapper {
 	}
 
 	@Override public void flushBuffer() throws IOException {
-		span.logEvent(Span.SERVER_SEND);
+		span.addEvent(Span.SERVER_SEND);
 		super.flushBuffer();
 	}
 
