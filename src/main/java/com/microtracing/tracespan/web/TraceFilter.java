@@ -1,6 +1,7 @@
 package com.microtracing.tracespan.web;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
@@ -54,6 +55,7 @@ public class TraceFilter implements Filter {
 		Tracer tracer = getTracer(request);
 		Span rootSpan = tracer.getThreadRootSpan();
 		if (isFirst) rootSpan.start();
+		logRequestInfo(request);
 		try {
 			Span clientSpan = tracer.getClientSpan();
 			if (clientSpan != null) {
@@ -63,6 +65,7 @@ public class TraceFilter implements Filter {
 				chain.doFilter(request, response);
 			}
 		} finally {
+			logResponseInfo(request, response);
 			//rootSpan.stop();
 			if (isFirst) {
 				request.removeAttribute(TRACER_REQUEST_ATTR);
@@ -77,22 +80,19 @@ public class TraceFilter implements Filter {
 			HttpServletInterceptor inter = new HttpServletInterceptor();
 			Span clientSpan = inter.extract(request);
 			if (clientSpan != null) {
-				logger.debug("trace span extraced from request.");
 				tracer = Tracer.getTracer(clientSpan.getTraceId());
 				tracer.setClientSpan(clientSpan);
 			}else {
-				logger.debug("create new tracer.");
 				tracer = Tracer.getTracer();
 			}
 			String name = "WEB:"+request.getRequestURL().toString();
 			Span span = tracer.getThreadRootSpan();
 			span.setName(name);
-			logger.debug("save tracer in request.");
 			request.setAttribute(TRACER_REQUEST_ATTR, tracer);
 		}
 		return tracer;
 	}
-	/*
+
 	
 	private void logRequestInfo(HttpServletRequest request){
 		StringBuffer sb = new StringBuffer();
@@ -104,22 +104,20 @@ public class TraceFilter implements Filter {
 		sb.append(" url=").append(url);
 		sb.append(" clientIp=").append(clientIp);
 		sb.append(" remoteAddr=").append(remoteAddr);
-		logger.info(sb.toString());
-		
-		sb = new StringBuffer();
-		sb.append(" headers:{ ");
-		for (String name : request.getHeaderNames()) {
+		sb.append(" headers={ ");
+		for (Enumeration<String> en = request.getHeaderNames();en.hasMoreElements();) {
+			String name = en.nextElement();
 			sb.append(name).append("=\"").append(request.getHeader(name)).append("\", ");
 		}
 		sb.append("}");
-		logger.debug(sb.toString());
+		if (sb.length()>0) logger.debug(sb.toString());
 	}
 	
 	private void logResponseInfo(HttpServletRequest request, HttpServletResponse response){
 		StringBuffer sb = new StringBuffer();
-		
-		for (String name : request.getParameterNames()){
-			if (name.toLowerCase().endWith("id")){
+		for (Enumeration<String> en =request.getParameterNames();en.hasMoreElements();) {
+			String name = en.nextElement();
+			if (name.toLowerCase().endsWith("id")){
 				sb.append(name + "=");
 				String[] values = request.getParameterValues(name);
 				if (values!=null && values.length==1){
@@ -137,8 +135,9 @@ public class TraceFilter implements Filter {
 				sb.append(" ");
 			}
 		}
+		if (sb.length()>0)  logger.debug(sb.toString());
 	}
-	*/
+
 
 	public static String getClientIpAddr(HttpServletRequest request){
 	       String ip = request.getHeader("x-forwarded-for");
