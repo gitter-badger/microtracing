@@ -31,6 +31,7 @@ public class LogTraceConfig{
 	private int logMethodLatency = 500;
 	
 	private  Set<String> includePackages = new HashSet<String>();
+	private  Set<String> excludePackages = new HashSet<String>();
 	private  Map<String, List<String>> traceMethodCall = new HashMap<String, List<String>>(); // class, methods
 	private  Map<String, List<String>> traceMethodProcess = new HashMap<String, List<String>>(); // class, methods
 	
@@ -90,6 +91,12 @@ public class LogTraceConfig{
 		if (traceMethodCall.containsKey(className)){
 			return true;
 		}
+		for (String v : excludePackages) {
+			if (className.startsWith(v)) {
+				return false;
+			}
+		}
+		
 		for (String v : includePackages) {
 			if (className.startsWith(v)) {
 				return true;
@@ -257,6 +264,14 @@ public class LogTraceConfig{
 				addProfileClass(pack);
 			}
 		}
+		
+		String sExcludePackages = properties.getProperty("logtrace.excludePackages");
+		if (sExcludePackages!=null && sExcludePackages.trim().length()>0){
+			String[] _excludes = sExcludePackages.split(";");
+			for (String pack : _excludes) {
+				excludePackages.add(pack);
+			}
+		}		
 		
 		String sTraceMethodCall = properties.getProperty("logtrace.traceMethodCall");
 		if (sTraceMethodCall!=null && sTraceMethodCall.trim().length()>0){
