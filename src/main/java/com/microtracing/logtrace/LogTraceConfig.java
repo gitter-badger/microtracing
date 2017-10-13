@@ -123,24 +123,31 @@ public class LogTraceConfig{
 		URL configURL = null;
 		
 		//given config file path
-		String givenConfigFileName = System.getProperty(CONFIG_FILE_NAME);
+		String givenConfigFileName = System.getProperty("logtrace.config");
 		if (givenConfigFileName != null) {
-			File file = new File(givenConfigFileName);
-			if (file != null && file.exists() && file.isFile()) {
-				try {
-					configURL = file.toURI().toURL();
-				} catch (MalformedURLException e) {
+			logger.debug("try load config from {}", givenConfigFileName);
+			try {
+				File file = new File(givenConfigFileName);
+				if (file != null && file.exists() && file.isFile()) {
+						configURL = file.toURI().toURL();
 				}
+			} catch (MalformedURLException e) {
+				logger.debug("load failed", e);
 			}
 		}
 		
 		//classes root
 		if (configURL == null) {
-			configURL = Thread.currentThread().getContextClassLoader().getResource(CONFIG_FILE_NAME);
+			ClassLoader cl = Thread.currentThread().getContextClassLoader();
+			if (cl!=null){
+				logger.debug("try load config from classpath: {}", cl);
+				configURL = Thread.currentThread().getContextClassLoader().getResource(CONFIG_FILE_NAME);
+			}
 		}
 		
 		//work dir
 		if (configURL == null) {
+			logger.debug("try load config from workdir: {}", CONFIG_FILE_NAME);
 			File file = new File(CONFIG_FILE_NAME);
 			if (file != null && file.exists() && file.isFile()) {
 				try {
@@ -152,6 +159,7 @@ public class LogTraceConfig{
 		
 		//home default dir
 		if (configURL == null) {
+			logger.debug("try load config from homedir: {}", DEFAULT_CONFIG_FILE);
 			if (DEFAULT_CONFIG_FILE != null && DEFAULT_CONFIG_FILE.exists()) {
 				try {
 					configURL = DEFAULT_CONFIG_FILE.toURI().toURL();
@@ -169,9 +177,9 @@ public class LogTraceConfig{
 			} catch (IOException e) {
 				throw new RuntimeException("error load config file " + DEFAULT_CONFIG_FILE, e);
 			}
-		}		
+		}	
 		
-		logger.info("load configuration from {}.", configURL.toString());
+		logger.info("load configuration from {}", configURL.toString());
 		parseProperty(configURL);
 		
 	}

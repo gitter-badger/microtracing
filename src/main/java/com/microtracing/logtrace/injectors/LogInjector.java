@@ -7,7 +7,7 @@ public class LogInjector implements ClassInjector,CallInjector,MethodInjector{
     private final static String[] classFields = new String[]{
         //"private final static java.util.logging.Logger _$logger = java.util.logging.Logger.getLogger(\"%1$s\");"
         //"private final static org.apache.log4j.Logger _$logger = org.apache.log4j.LogManager.getLogger(\"%1$s\");"
-        "private final static org.slf4j.Logger _$logger = org.slf4j.LoggerFactory.getLogger(\"%1$s\");"
+        "private final static org.slf4j.Logger _$logger = org.slf4j.LoggerFactory.getLogger(\"com.microtracing.logtrace.injectors.LogInjector\");"
 
     };
 
