@@ -65,6 +65,7 @@ public class Tracer{
 	
 	public void closeThreadRootSpan() {
 		threadRootSpan.stop();
+		tracerLocal.set(null);
 		MDC.remove(Span.SPAN_ID_NAME);
 		MDC.remove(Span.TRACE_ID_NAME);
 	}

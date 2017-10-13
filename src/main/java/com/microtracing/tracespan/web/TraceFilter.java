@@ -50,7 +50,7 @@ public class TraceFilter implements Filter {
 			return;
 		}
 		
-		boolean isFirst = request.getAttribute(TRACER_REQUEST_ATTR)==null;
+		boolean isFirst = (request.getAttribute(TRACER_REQUEST_ATTR)==null);
 		Tracer tracer = getTracer(request);
 		Span rootSpan = tracer.getThreadRootSpan();
 		if (isFirst) rootSpan.start();
@@ -64,8 +64,10 @@ public class TraceFilter implements Filter {
 			}
 		} finally {
 			//rootSpan.stop();
-			if (isFirst) tracer.closeThreadRootSpan();
-			request.removeAttribute(TRACER_REQUEST_ATTR);
+			if (isFirst) {
+				request.removeAttribute(TRACER_REQUEST_ATTR);
+				tracer.closeThreadRootSpan();
+			}
 		}
 	}
 	
@@ -75,14 +77,17 @@ public class TraceFilter implements Filter {
 			HttpServletInterceptor inter = new HttpServletInterceptor();
 			Span clientSpan = inter.extract(request);
 			if (clientSpan != null) {
+				logger.debug("trace span extraced from request.");
 				tracer = Tracer.getTracer(clientSpan.getTraceId());
 				tracer.setClientSpan(clientSpan);
 			}else {
+				logger.debug("create new tracer.");
 				tracer = Tracer.getTracer();
 			}
 			String name = "WEB:"+request.getRequestURL().toString();
 			Span span = tracer.getThreadRootSpan();
 			span.setName(name);
+			logger.debug("save tracer in request.");
 			request.setAttribute(TRACER_REQUEST_ATTR, tracer);
 		}
 		return tracer;
