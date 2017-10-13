@@ -65,6 +65,7 @@ public class TraceFilter implements Filter {
 		} finally {
 			//rootSpan.stop();
 			if (isFirst) tracer.closeThreadRootSpan();
+			request.removeAttribute(TRACER_REQUEST_ATTR);
 		}
 	}
 	
