@@ -31,7 +31,7 @@ public class Tracer{
 	
 	private static String genTraceId(){
 		String[]  uuid = UUID.randomUUID().toString().split("-"); //8-4-4-4-12
-		return uuid[0]+uuid[3]; // 12 chars
+		return uuid[0]+uuid[2]+uuid[3]; // 16 chars
 	}
 	
 	

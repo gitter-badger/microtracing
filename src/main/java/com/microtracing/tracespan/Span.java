@@ -163,7 +163,7 @@ public class Span{
 
 	private String genSpanId(){
 		String[]  uuid = UUID.randomUUID().toString().split("-");
-		return uuid[0]+uuid[3]; // 12 chars
+		return uuid[0]+uuid[2]+uuid[3]; // 16 chars
 	}	
 	
 
