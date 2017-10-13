@@ -1,0 +1,11 @@
+1. Java client application 
+a. put logtrace-{version}-jar-with-dependencies.jar into java startup classpath
+b. add java startup commond line option: -javaagent:-javaagent:/full/path/to/logtrace-0.1-jar-with-dependencies.jar
+c. add tracelog file appender to log4j config file. add [%X{X-B3-TraceId},%X{X-B3-SpanId}] to other appenders' layout.ConversionPattern 
+
+2. Weblogic
+a. put logtrace-{version}-jar-with-dependencies.jar into ${DOMAIN_HOME}/lib
+b. set JAVA_OPTIONS:
+	export JAVA_OPTS="$JAVA_OPTS -javaagent:${DOMAIN_HOME}/lib/logtrace-{version}-jar-with-dependencies.jar" 
+c. add tracelog file appender to log4j config file. add [%X{X-B3-TraceId},%X{X-B3-SpanId}] to other appenders' layout.ConversionPattern
+d. add TraceFilter to web.xml 
