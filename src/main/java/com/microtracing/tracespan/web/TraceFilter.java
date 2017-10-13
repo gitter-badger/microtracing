@@ -12,6 +12,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,6 +105,12 @@ public class TraceFilter implements Filter {
 		sb.append(" url=").append(url);
 		sb.append(" clientIp=").append(clientIp);
 		sb.append(" remoteAddr=").append(remoteAddr);
+		
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			sb.append(" sessionId=" + session.getId());
+		}
+		
 		sb.append(" headers={ ");
 		for (Enumeration<String> en = request.getHeaderNames();en.hasMoreElements();) {
 			String name = en.nextElement();
