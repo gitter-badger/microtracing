@@ -1,11 +1,34 @@
 1. Java client application 
 a. put logtrace-{version}-jar-with-dependencies.jar into java startup classpath
-b. add java startup commond line option: -javaagent:-javaagent:/full/path/to/logtrace-0.1-jar-with-dependencies.jar
+b. add java startup commond line option: -javaagent:/full/path/to/logtrace-0.1-jar-with-dependencies.jar
 c. add tracelog file appender to log4j config file. add [%X{X-B3-TraceId},%X{X-B3-SpanId}] to other appenders' layout.ConversionPattern 
 
 2. Weblogic
-a. put logtrace-{version}-jar-with-dependencies.jar into ${DOMAIN_HOME}/lib
-b. set JAVA_OPTIONS:
-	export JAVA_OPTS="$JAVA_OPTS -javaagent:${DOMAIN_HOME}/lib/logtrace-{version}-jar-with-dependencies.jar" 
-c. add tracelog file appender to log4j config file. add [%X{X-B3-TraceId},%X{X-B3-SpanId}] to other appenders' layout.ConversionPattern
-d. add TraceFilter to web.xml 
+a. put logtrace-{version}-jar-with-dependencies.jar into ${DOMAIN_HOME}/lib  and webapp's WEB-INF/lib
+
+b. edit weblogic start script (like setDomainEnv.sh),  add to JAVA_OPTIONS:
+	export JAVA_OPTS="$JAVA_OPTS -javaagent:${DOMAIN_HOME}/lib/logtrace-{version}-jar-with-dependencies.jar"
+	 
+c. add tracelog file appender to log4j config file. add [%X{X-B3-TraceId},%X{X-B3-SpanId}] to other appenders' layout.ConversionPattern:
+	log4j.logger.com.microtracing=INFO,tracelog
+	log4j.additivity.com.microtracing=false
+	log4j.appender.tracelog=org.apache.log4j.RollingFileAppender
+	log4j.appender.tracelog.maxFileSize=100MB
+	log4j.appender.tracelog.maxBackupIndex=5 
+	log4j.appender.tracelog.Threshold=INFO
+	log4j.appender.tracelog.file=logs/logtrace.log
+	log4j.appender.tracelog.layout=org.apache.log4j.PatternLayout
+	log4j.appender.tracelog.layout.ConversionPattern=%d{ISO8601} %p [%X{X-B3-TraceId},%X{X-B3-SpanId}] %C{3}.%M(%F:%L) : %m %n
+	
+	log4j.appender.console.layout.ConversionPattern=%d{ISO8601} %p [%X{X-B3-TraceId},%X{X-B3-SpanId}] %C{3}.%M(%F:%L) : %m %n
+	
+d. add TraceFilter to web.xml as first filter.
+        <filter>
+                <display-name>TraceFilter</display-name>
+                <filter-name>TraceFilter</filter-name>
+                <filter-class>com.microtracing.tracespan.web.TraceFilter</filter-class>
+        </filter>
+        <filter-mapping>
+                <filter-name>TraceFilter</filter-name>
+                <url-pattern>/servlet/*</url-pattern>
+        </filter-mapping>
