@@ -2,6 +2,7 @@ package com.microtracing.tracespan;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -63,6 +64,8 @@ public class Span{
 	private long endTime;
 	
 	private List<SpanEvent> events = new ArrayList<SpanEvent>(6);
+	
+	private Map<String,String> tags = new HashMap<String,String>();
 
 	private boolean autoPrintLog = true;
 	
@@ -132,21 +135,31 @@ public class Span{
 		return level;
 	}
 	
-	public void addTag(String tagName, String value){
-		if (autoPrintLog){
-			log("SpanTag{spanId="+this.spanId+", "+tagName + "=\"" + value + "\"}" );
+	
+	public void addTag(String tagName, String value) {
+		if (value!=null) {
+			this.tags.put(tagName,  value);
+			if (autoPrintLog){
+				log("SpanTag{spanId="+this.spanId+", "+tagName + "=\"" + value + "\"}" );
+			}			
 		}
+	}
+	
+	public String getTag(String tagName) {
+		return this.tags.get(tagName);
+	}
+	
+	public Map<String, String> tags(){
+		return Collections.unmodifiableMap(this.tags);
 	}
 
 	public boolean isAutoPrintLog() {
 		return autoPrintLog;
 	}
 
-
 	public void setAutoPrintLog(boolean autoPrintLog) {
 		this.autoPrintLog = autoPrintLog;
 	}
-
 
 	private String genSpanId(){
 		String[]  uuid = UUID.randomUUID().toString().split("-");
@@ -185,7 +198,9 @@ public class Span{
 		endTime = System.currentTimeMillis();
 		addFormatEvent(SPAN_END,"duration=%s", (endTime-startTime) );
 		
-		Tracer.getTracer().setCurrentSpan(this.parentSpan);
+		if (Tracer.getTracer().getCurrentSpan()==this) {
+			Tracer.getTracer().setCurrentSpan(this.parentSpan);
+		}
 		if (this.parentSpan != null) {
 			//detach
 			this.parentSpan.getChildSpans().remove(this);
@@ -288,7 +303,7 @@ public class Span{
 		if(this.parentSpan!=null) sb.append(", parentId=").append(this.getParentSpanId());
 		sb.append(", spanId=").append(this.spanId);
 		sb.append(", spanName=\"").append(this.name).append("\"");
-		sb.append(", spanLevel=").append(this.level).append("");
+		sb.append(", spanLevel=").append(this.level);
 		if(this.remote) sb.append(", remote=").append(this.remote);
 		sb.append("}");
 		return sb.toString();

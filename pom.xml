@@ -15,21 +15,23 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>javassist</groupId>
+      <groupId>org.javassist</groupId>
       <artifactId>javassist</artifactId>
-      <version>3.12.1.GA</version>
+      <version>3.22.0-GA</version>
     </dependency>
     <dependency>
     	<groupId>javax.servlet</groupId>
     	<artifactId>javax.servlet-api</artifactId>
-    	<scope>provided</scope>
     	<version>3.1.0</version>
+        <!-- 
+        <scope>provided</scope>
+         -->
     </dependency>
     <dependency>
-    	<groupId>org.slf4j</groupId>
-    	<artifactId>slf4j-api</artifactId>
-    	<version>1.7.25</version>
-    </dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.7.25</version>
+    </dependency>    
     <dependency>
     	<groupId>org.slf4j</groupId>
     	<artifactId>slf4j-log4j12</artifactId>
@@ -39,6 +41,7 @@
 		<groupId>com.caucho</groupId>
 		<artifactId>hessian</artifactId>
 		<version>4.0.51</version>
+		<scope>provided</scope>
 	</dependency>
   </dependencies>
   
@@ -61,7 +64,6 @@
         <configuration>
           <excludes>
             <exclude>**/TimeTest.class</exclude>
-            <exclude>**/log4j.properties</exclude>
           </excludes>
           <archive>
             <manifest>
@@ -91,7 +93,6 @@
         </executions>  
       </plugin>  	  
 
-<!--
       <plugin>  
         <groupId>org.apache.maven.plugins</groupId>  
         <artifactId>maven-assembly-plugin</artifactId>  
@@ -99,11 +100,15 @@
         <configuration>  
           <excludes>
             <exclude>**/TimeTest.class</exclude>
+          </excludes>
+          <!-- 
+          <excludes>
             <exclude>**/log4j.properties</exclude>
           </excludes>
+           -->
           <archive>  
             <manifestEntries>  
-              <Premain-Class>com.microtracing.logtrace.LogAgent</Premain-Class>
+              <Premain-Class>com.microtracing.logtrace.LogTraceAgent</Premain-Class>
             </manifestEntries>  
           </archive>  
           <descriptorRefs>  
@@ -120,7 +125,6 @@
           </execution>  
         </executions>  
       </plugin>  
-	  -->
       
     </plugins>
   </build>  

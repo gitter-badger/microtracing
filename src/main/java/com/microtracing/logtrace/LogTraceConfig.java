@@ -3,13 +3,24 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 public class LogTraceConfig{
+	private static final Logger logger =  LoggerFactory.getLogger(LogTraceConfig.class);
+	
 	private static final String CONFIG_FILE_NAME = "logtrace.properties";
 	private static File DEFAULT_CONFIG_FILE = new File(System.getProperty("user.home"), "/.logtrace/" + CONFIG_FILE_NAME);
 	
@@ -109,40 +120,60 @@ public class LogTraceConfig{
 	}	
 	
 	public LogTraceConfig() {
-		String specifiedConfigFileName = System.getProperty(CONFIG_FILE_NAME);
-
-		File givenConfigFile = specifiedConfigFileName == null ? null : new File(specifiedConfigFileName);
-		File classConfigFile = null;
-		try{
-			URL url = Thread.currentThread().getContextClassLoader().getResource(CONFIG_FILE_NAME);
-			if (url!=null){
-				classConfigFile = new File(url.toURI());
+		URL configURL = null;
+		
+		//given config file path
+		String givenConfigFileName = System.getProperty(CONFIG_FILE_NAME);
+		if (givenConfigFileName != null) {
+			File file = new File(givenConfigFileName);
+			if (file != null && file.exists() && file.isFile()) {
+				try {
+					configURL = file.toURI().toURL();
+				} catch (MalformedURLException e) {
+				}
 			}
-		}catch (URISyntaxException ue){
 		}
 		
-		File configFiles[] = {
-					  givenConfigFile,  // given path 
-			          classConfigFile,  // class path
-					  new File(CONFIG_FILE_NAME), // current work path 
-					  DEFAULT_CONFIG_FILE // default path
-		};
-
-		for (File file : configFiles){
+		//classes root
+		if (configURL == null) {
+			configURL = Thread.currentThread().getContextClassLoader().getResource(CONFIG_FILE_NAME);
+		}
+		
+		//work dir
+		if (configURL == null) {
+			File file = new File(CONFIG_FILE_NAME);
 			if (file != null && file.exists() && file.isFile()) {
-				System.out.println(String.format("load configuration from \"%s\".", file.getAbsolutePath()));
-				parseProperty(file);
-				return;
+				try {
+					configURL = file.toURI().toURL();
+				} catch (MalformedURLException e) {
+				}
 			}
-		} 
+		}
+		
+		//home default dir
+		if (configURL == null) {
+			if (DEFAULT_CONFIG_FILE != null && DEFAULT_CONFIG_FILE.exists()) {
+				try {
+					configURL = DEFAULT_CONFIG_FILE.toURI().toURL();
+				} catch (MalformedURLException e) {
+				}
+			}
+		}
+
 		// load default
-		System.out.println(String.format("load configuration from \"%s\".", DEFAULT_CONFIG_FILE.getAbsolutePath()));
-		try {
-			extractDefaultProfile();
-			parseProperty(DEFAULT_CONFIG_FILE);
-		} catch (IOException e) {
-			throw new RuntimeException("error load config file " + DEFAULT_CONFIG_FILE, e);
+		if (configURL == null) {
+			logger.debug("extract default configuration to {}.", DEFAULT_CONFIG_FILE.getAbsolutePath());
+			try {
+				extractDefaultProfile();
+				configURL = DEFAULT_CONFIG_FILE.toURI().toURL();
+			} catch (IOException e) {
+				throw new RuntimeException("error load config file " + DEFAULT_CONFIG_FILE, e);
+			}
 		}		
+		
+		logger.info("load configuration from {}.", configURL.toString());
+		parseProperty(configURL);
+		
 	}
 	
 
@@ -167,10 +198,12 @@ public class LogTraceConfig{
 	}
 
 	
-	private void parseProperty(File path) {
+	private void parseProperty(URL url) {
 		Properties properties = new Properties();
+		InputStream in = null;
 		try {
-			properties.load(new FileReader(path)); 
+			in = url.openStream();
+			properties.load(in); 
 			properties.list(System.out);
 			
 			Properties context = new Properties(); 
@@ -180,6 +213,10 @@ public class LogTraceConfig{
 			loadConfig(properties);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}finally {
+			if (in!=null) try{
+				in.close();
+			}catch(IOException ioe) {}
 		}
 	}
 

@@ -1,5 +1,4 @@
 package com.microtracing.logtrace.injectors;
-import com.microtracing.logtrace.CallInjector;
 import com.microtracing.logtrace.LogTraceConfig;
 import com.microtracing.logtrace.MethodInjector;
 public class SpanMethodInjector implements MethodInjector{
