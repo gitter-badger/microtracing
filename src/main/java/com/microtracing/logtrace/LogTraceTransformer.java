@@ -7,9 +7,6 @@ import java.security.ProtectionDomain;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.microtracing.logtrace.injectors.ExceptionInjector;
 import com.microtracing.logtrace.injectors.HttpURLConnectionRecvInjector;
 import com.microtracing.logtrace.injectors.HttpURLConnectionSendInjector;
@@ -29,8 +26,9 @@ import javassist.NotFoundException;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
 public class LogTraceTransformer  implements ClassFileTransformer{
-	private static final Logger logger =  LoggerFactory.getLogger(LogTraceTransformer.class);
-		
+	//private static final org.slf4j.Logger logger =  org.slf4j.LoggerFactory.getLogger(ClassFileTransformer.class);
+	private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ClassFileTransformer.class.getName());
+			
 	private LogTraceConfig config;
 	
 	private Set<ClassInjector> classInjectors = new HashSet<ClassInjector>();
@@ -58,7 +56,7 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 		JdbcExecuteInjector jdbcExeInjector = new JdbcExecuteInjector(config);
 		
 		if (config.isEnableLog()) classInjectors.add(logInjector);
-		logger.debug("ClassInjector:"+classInjectors.toString());		
+		logger.fine("ClassInjector:"+classInjectors.toString());		
 
 		callInjectors.add(spanCallInjector);
 		if (config.isEnableHttpURLConnectionTrace()) {
@@ -69,7 +67,7 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 			callInjectors.add(jdbcStmtInjector);
 			callInjectors.add(jdbcExeInjector);
 		}
-		logger.debug("CallInjector:"+callInjectors.toString());
+		logger.fine("CallInjector:"+callInjectors.toString());
 		
 		methodInjectors.add(spanMethodInjector);
 		if (config.isEnableTimingLog()) {
@@ -78,7 +76,7 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 		if (config.isEnableExceptionLog()) {
 			methodInjectors.add(exInjector);
 		}
-		logger.debug("MethodInjector:"+methodInjectors.toString());		
+		logger.fine("MethodInjector:"+methodInjectors.toString());		
 	}
 		
 	private CtClass interceptClass(CtClass ctclass, ClassInjector injector){
@@ -176,11 +174,11 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 			if (ex!=null && ex.trim().length()>0) ctmethod.addCatch(ex, classPool.get("java.lang.Exception"), "_$e"); 
 			if (fin!=null && fin.trim().length()>0) ctmethod.insertAfter(fin, true);
 		}catch(NotFoundException ne){
-			logger.warn(ne + " method: " + className +"." + methodName + " injector: " + injector);
+			logger.warning(ne + " method: " + className +"." + methodName + " injector: " + injector);
 		}catch(CannotCompileException ce){
-			logger.warn(ce + " method: " + className +"." + methodName + " injector: " + injector);
+			logger.warning(ce + " method: " + className +"." + methodName + " injector: " + injector);
 		}catch(Exception ex){
-			logger.warn(ex + " method: " + className +"." + methodName + " injector: " + injector);
+			logger.warning(ex + " method: " + className +"." + methodName + " injector: " + injector);
 		}
 		return ctmethod;
 	}	

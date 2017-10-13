@@ -1,14 +1,12 @@
 package com.microtracing.logtrace.injectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.microtracing.logtrace.CallInjector;
 import com.microtracing.logtrace.LogTraceConfig;
 
 
 public class HttpURLConnectionSendInjector implements CallInjector{
-	private static final Logger logger =  LoggerFactory.getLogger(HttpURLConnectionSendInjector.class);
+	//private static final org.slf4j.Logger logger =  org.slf4j.LoggerFactory.getLogger(HttpURLConnectionSendInjector.class);
+	//private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(HttpURLConnectionSendInjector.class.getName());
 
 	
 	private final static  String methodCallBefore 
@@ -41,14 +39,14 @@ public class HttpURLConnectionSendInjector implements CallInjector{
 	@Override
 	public  String getMethodCallBefore(String className, String methodName){
 		String s = String.format(methodCallBefore,className, methodName);
-		logger.debug(String.format("inject before %s.%s\n%s",className,methodName,s));
+		//logger.fine(String.format("inject before %s.%s\n%s",className,methodName,s));
 		return s;
 	}
 	
 	@Override
 	public  String getMethodCallAfter(String className, String methodName){
 		String s = String.format(methodCallAfter,className, methodName);
-		logger.debug(String.format("inject after %s.%s\n%s",className,methodName,s));
+		//logger.fine(String.format("inject after %s.%s\n%s",className,methodName,s));
 		return s;
 	}	
 	

@@ -16,10 +16,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 public class LogTraceConfig{
-	private static final Logger logger =  LoggerFactory.getLogger(LogTraceConfig.class);
+	//private static final org.slf4j.Logger logger =  org.slf4j.LoggerFactory.getLogger(LogTraceConfig.class);
+	private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(LogTraceConfig.class.getName());
 	
 	private static final String CONFIG_FILE_NAME = "logtrace.properties";
 	private static File DEFAULT_CONFIG_FILE = new File(System.getProperty("user.home"), "/.logtrace/" + CONFIG_FILE_NAME);
@@ -119,47 +118,61 @@ public class LogTraceConfig{
 		return false;
 	}	
 	
-	public LogTraceConfig() {
+	private URL getURL(String path){
+		URL url = null;
+		try {
+			url = new URL(path);
+		} catch (MalformedURLException e) {
+			logger.fine(e.toString());
+		}
+		if (url == null) try {
+			File file = new File(path);
+			if (file != null && file.exists() && file.isFile()) {
+				url = file.toURI().toURL();
+			}else{
+				logger.warning("file not exists: " + path);
+			}
+		} catch (MalformedURLException ex) {
+			logger.warning(ex.toString());
+		}
+		return url;
+	}
+	
+	public LogTraceConfig(String configFilePath) {
 		URL configURL = null;
 		
+		if (configFilePath!=null){
+			logger.info(String.format("try load config from %s", configFilePath));
+			configURL = getURL(configFilePath);
+		}
+		
 		//given config file path
-		String givenConfigFileName = System.getProperty("logtrace.config");
-		if (givenConfigFileName != null) {
-			logger.debug("try load config from {}", givenConfigFileName);
-			try {
-				File file = new File(givenConfigFileName);
-				if (file != null && file.exists() && file.isFile()) {
-						configURL = file.toURI().toURL();
-				}
-			} catch (MalformedURLException e) {
-				logger.debug("load failed", e);
+		if (configURL == null) {
+			String givenConfigFileName = System.getProperty("logtrace.config");
+			if (givenConfigFileName != null) {
+				logger.info(String.format("try load config from %s", givenConfigFileName));
+				configURL = getURL(givenConfigFileName);
 			}
+		}
+		
+		//work dir
+		if (configURL == null) {
+			logger.info("try load config from workdir: " + CONFIG_FILE_NAME);
+			configURL = getURL(CONFIG_FILE_NAME);
 		}
 		
 		//classes root
 		if (configURL == null) {
 			ClassLoader cl = Thread.currentThread().getContextClassLoader();
 			if (cl!=null){
-				logger.debug("try load config from classpath: {}", cl);
+				logger.info("try load config from classpath: " + cl);
 				configURL = Thread.currentThread().getContextClassLoader().getResource(CONFIG_FILE_NAME);
-			}
-		}
-		
-		//work dir
-		if (configURL == null) {
-			logger.debug("try load config from workdir: {}", CONFIG_FILE_NAME);
-			File file = new File(CONFIG_FILE_NAME);
-			if (file != null && file.exists() && file.isFile()) {
-				try {
-					configURL = file.toURI().toURL();
-				} catch (MalformedURLException e) {
-				}
 			}
 		}
 		
 		//home default dir
 		if (configURL == null) {
-			logger.debug("try load config from homedir: {}", DEFAULT_CONFIG_FILE);
+			logger.info("try load config from homedir: " + DEFAULT_CONFIG_FILE);
 			if (DEFAULT_CONFIG_FILE != null && DEFAULT_CONFIG_FILE.exists()) {
 				try {
 					configURL = DEFAULT_CONFIG_FILE.toURI().toURL();
@@ -170,7 +183,7 @@ public class LogTraceConfig{
 
 		// load default
 		if (configURL == null) {
-			logger.debug("extract default configuration to {}.", DEFAULT_CONFIG_FILE.getAbsolutePath());
+			logger.info("extract default configuration to " + DEFAULT_CONFIG_FILE.getAbsolutePath());
 			try {
 				extractDefaultProfile();
 				configURL = DEFAULT_CONFIG_FILE.toURI().toURL();
@@ -179,7 +192,7 @@ public class LogTraceConfig{
 			}
 		}	
 		
-		logger.info("load configuration from {}", configURL.toString());
+		logger.info("load configuration from " + configURL.toString());
 		parseProperty(configURL);
 		
 	}
