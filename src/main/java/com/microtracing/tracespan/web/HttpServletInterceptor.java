@@ -50,8 +50,9 @@ public class HttpServletInterceptor  implements ServerSpanInterceptor<HttpServle
 	public void inject(Span span, HttpServletResponse resp){
 		Map<String,String> carrier = span.toMap();
 		for (String headerName :  carrier.keySet()) {
-			resp.setHeader(headerName, carrier.get(headerName));
+			resp.addHeader(headerName, carrier.get(headerName));
 		}
+		
 	}
 
 }

@@ -43,7 +43,7 @@ public class HttpURLConnectionInterceptor implements ClientSpanInterceptor<HttpU
 	public  void inject(Span span, HttpURLConnection conn){
 		Map<String,String> carrier = span.toMap();
 		for (String headerName : carrier.keySet()) {
-			conn.setRequestProperty(headerName, carrier.get(headerName));
+			conn.addRequestProperty(headerName, carrier.get(headerName));
 		}
 		logger.debug("{} injected into HttpURLConnection request. {}={} {}={} ", span, Span.TRACE_ID_NAME,conn.getRequestProperty(Span.TRACE_ID_NAME), Span.SPAN_ID_NAME,conn.getRequestProperty(Span.SPAN_ID_NAME));
 	}
