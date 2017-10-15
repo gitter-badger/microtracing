@@ -1,7 +1,7 @@
 package com.microtracing.logtrace.injectors;
 import com.microtracing.logtrace.LogTraceConfig;
 import com.microtracing.logtrace.MethodInjector;
-public class TimerInjector implements MethodInjector{
+public class MethodTimingInjector implements MethodInjector{
 	
 	private final static String[][] methodVariables = new String[][]{
 													{"long","_$startTime"}
@@ -27,7 +27,7 @@ public class TimerInjector implements MethodInjector{
 	
 	private LogTraceConfig config;
 	
-	public TimerInjector(LogTraceConfig config){
+	public MethodTimingInjector(LogTraceConfig config){
 		this.config = config;
 	}
 	

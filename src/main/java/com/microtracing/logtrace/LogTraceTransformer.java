@@ -7,15 +7,16 @@ import java.security.ProtectionDomain;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.microtracing.logtrace.injectors.CallTimingInjector;
 import com.microtracing.logtrace.injectors.ExceptionInjector;
 import com.microtracing.logtrace.injectors.HttpURLConnectionRecvInjector;
 import com.microtracing.logtrace.injectors.HttpURLConnectionSendInjector;
 import com.microtracing.logtrace.injectors.JdbcExecuteInjector;
 import com.microtracing.logtrace.injectors.JdbcStatementInjector;
 import com.microtracing.logtrace.injectors.LogInjector;
+import com.microtracing.logtrace.injectors.MethodTimingInjector;
 import com.microtracing.logtrace.injectors.SpanCallInjector;
 import com.microtracing.logtrace.injectors.SpanMethodInjector;
-import com.microtracing.logtrace.injectors.TimerInjector;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -43,7 +44,8 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 
 	private void initInjectors() {
 		LogInjector logInjector = new LogInjector(config);
-		TimerInjector timerInjector = new TimerInjector(config);
+		CallTimingInjector callTimeingInjector = new CallTimingInjector(config);
+		MethodTimingInjector methodTimeingInjector = new MethodTimingInjector(config);
 		ExceptionInjector exInjector = new ExceptionInjector(config);
 		
 		SpanCallInjector spanCallInjector = new SpanCallInjector(config);
@@ -56,7 +58,6 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 		JdbcExecuteInjector jdbcExeInjector = new JdbcExecuteInjector(config);
 		
 		if (config.isEnableLog()) classInjectors.add(logInjector);
-		logger.fine("ClassInjector:"+classInjectors.toString());		
 
 		callInjectors.add(spanCallInjector);
 		if (config.isEnableHttpURLConnectionTrace()) {
@@ -67,16 +68,19 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 			callInjectors.add(jdbcStmtInjector);
 			callInjectors.add(jdbcExeInjector);
 		}
-		logger.fine("CallInjector:"+callInjectors.toString());
 		
 		methodInjectors.add(spanMethodInjector);
 		if (config.isEnableTimingLog()) {
-			methodInjectors.add(timerInjector);
+			callInjectors.add(callTimeingInjector);
+			methodInjectors.add(methodTimeingInjector);
 		}
+		
 		if (config.isEnableExceptionLog()) {
 			methodInjectors.add(exInjector);
 		}
-		logger.fine("MethodInjector:"+methodInjectors.toString());		
+		logger.fine("ClassInjector:"+classInjectors.toString());		
+		logger.fine("CallInjector:"+callInjectors.toString());
+		logger.fine("MethodInjector:"+methodInjectors.toString());
 	}
 		
 	private CtClass interceptClass(CtClass ctclass, ClassInjector injector){

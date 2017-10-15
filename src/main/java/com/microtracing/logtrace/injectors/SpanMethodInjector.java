@@ -14,6 +14,7 @@ public class SpanMethodInjector implements MethodInjector{
         + "  String _$spanName = \"%1$s\"; \n"
         + "  if (!_$spanName.equals(_$span.getName())) { \n "
         +"     _$span = _$tracer.createSpan(_$spanName);  \n"
+        +"     _$span.setAutoPrintLog(%2$b);  \n"
         +"     _$span.start();  \n"
         + "  } \n";
 
@@ -60,7 +61,8 @@ public class SpanMethodInjector implements MethodInjector{
     
     private LogTraceConfig config;
 	private String spanName = "METHOD:%1$s.%2$s";
-	    
+	private boolean autoPrintLog = true;
+    	    
     public SpanMethodInjector(LogTraceConfig config){
         this.config = config;
     }
@@ -69,7 +71,10 @@ public class SpanMethodInjector implements MethodInjector{
     	this.spanName = spanName;
     }
     
-    
+    public void setAutoPrintLog(boolean autoPrintLog) {
+    	this.autoPrintLog = autoPrintLog;
+    }
+            
     @Override
     public  String[][] getMethodVariables(String className, String methodName){
         return methodVariables;
@@ -78,25 +83,25 @@ public class SpanMethodInjector implements MethodInjector{
     @Override
     public  String getMethodProcessStart(String className, String methodName){
     	String realSpanName =  String.format(spanName, className, methodName);
-        return String.format(methodProcessStart, realSpanName);
+        return String.format(methodProcessStart, realSpanName, autoPrintLog);
     }
     
     @Override
     public  String getMethodProcessReturn(String className, String methodName){
     	String realSpanName =  String.format(spanName, className, methodName);
-        return String.format(methodProcessReturn, realSpanName);
+        return String.format(methodProcessReturn, realSpanName, autoPrintLog);
     }    
     
     @Override
     public  String getMethodProcessException(String className, String methodName){
     	String realSpanName =  String.format(spanName, className, methodName);
-        return String.format(methodProcessException, realSpanName);
+        return String.format(methodProcessException, realSpanName, autoPrintLog);
     }    
 
     @Override
     public  String getMethodProcessFinally(String className, String methodName){
     	String realSpanName =  String.format(spanName, className, methodName);
-        return String.format(methodProcessFinally, realSpanName);
+        return String.format(methodProcessFinally, realSpanName, autoPrintLog);
     }    
     
     

@@ -11,6 +11,7 @@ public class SpanCallInjector implements CallInjector{
         + "  String _$spanName = \"%1$s\"; \n"
         + "  if (!_$spanName.equals(_$span.getName())) { \n "
         +"     _$span = _$tracer.createSpan(_$spanName);  \n"
+        +"     _$span.setAutoPrintLog(%2$b);  \n"
         +"     _$span.start();  \n"
         + "  } \n";
 
@@ -34,6 +35,7 @@ public class SpanCallInjector implements CallInjector{
     protected LogTraceConfig config;
     
 	private String spanName = DEFAULT_SPAN_NAME;
+	private boolean autoPrintLog = true;
 	    
     public SpanCallInjector(LogTraceConfig config){
         this.config = config;
@@ -43,17 +45,21 @@ public class SpanCallInjector implements CallInjector{
     	this.spanName = spanName;
     }
     
+    public void setAutoPrintLog(boolean autoPrintLog) {
+    	this.autoPrintLog = autoPrintLog;
+    }
+        
 
     @Override
     public  String getMethodCallBefore(String className, String methodName){
     	String realSpanName =  String.format(spanName, className, methodName);
-        return String.format(methodCallBefore, realSpanName);
+        return String.format(methodCallBefore, realSpanName, autoPrintLog);
     }
     
     @Override
     public  String getMethodCallAfter(String className, String methodName){
     	String realSpanName =  String.format(spanName, className, methodName);
-        return String.format(methodCallAfter, realSpanName);
+        return String.format(methodCallAfter, realSpanName, autoPrintLog);
     }    
     
     

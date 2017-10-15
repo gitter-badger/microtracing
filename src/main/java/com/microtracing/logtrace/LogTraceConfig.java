@@ -137,10 +137,10 @@ public class LogTraceConfig{
 			if (file != null && file.exists() && file.isFile()) {
 				url = file.toURI().toURL();
 			}else{
-				logger.warning("file not exists: " + path);
+				logger.fine("file not exists: " + path);
 			}
 		} catch (MalformedURLException ex) {
-			logger.warning(ex.toString());
+			logger.fine(ex.toString());
 		}
 		return url;
 	}
@@ -149,7 +149,7 @@ public class LogTraceConfig{
 		URL configURL = null;
 		
 		if (configFilePath!=null){
-			logger.info(String.format("try load config from %s", configFilePath));
+			logger.fine(String.format("try load config from %s", configFilePath));
 			configURL = getURL(configFilePath);
 		}
 		
@@ -157,14 +157,14 @@ public class LogTraceConfig{
 		if (configURL == null) {
 			String givenConfigFileName = System.getProperty("logtrace.config");
 			if (givenConfigFileName != null) {
-				logger.info(String.format("try load config from %s", givenConfigFileName));
+				logger.fine(String.format("try load config from %s", givenConfigFileName));
 				configURL = getURL(givenConfigFileName);
 			}
 		}
 		
 		//work dir
 		if (configURL == null) {
-			logger.info("try load config from workdir: " + CONFIG_FILE_NAME);
+			logger.fine("try load config from workdir: " + CONFIG_FILE_NAME);
 			configURL = getURL(CONFIG_FILE_NAME);
 		}
 		
@@ -172,14 +172,14 @@ public class LogTraceConfig{
 		if (configURL == null) {
 			ClassLoader cl = Thread.currentThread().getContextClassLoader();
 			if (cl!=null){
-				logger.info("try load config from classpath: " + cl);
+				logger.fine("try load config from classpath: " + cl);
 				configURL = Thread.currentThread().getContextClassLoader().getResource(CONFIG_FILE_NAME);
 			}
 		}
 		
 		//home default dir
 		if (configURL == null) {
-			logger.info("try load config from homedir: " + DEFAULT_CONFIG_FILE);
+			logger.fine("try load config from homedir: " + DEFAULT_CONFIG_FILE);
 			if (DEFAULT_CONFIG_FILE != null && DEFAULT_CONFIG_FILE.exists()) {
 				try {
 					configURL = DEFAULT_CONFIG_FILE.toURI().toURL();
@@ -190,7 +190,7 @@ public class LogTraceConfig{
 
 		// load default
 		if (configURL == null) {
-			logger.info("extract default configuration to " + DEFAULT_CONFIG_FILE.getAbsolutePath());
+			logger.fine("extract default configuration to " + DEFAULT_CONFIG_FILE.getAbsolutePath());
 			try {
 				extractDefaultProfile();
 				configURL = DEFAULT_CONFIG_FILE.toURI().toURL();
