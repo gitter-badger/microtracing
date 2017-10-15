@@ -43,17 +43,17 @@ public class MethodTimingInjector implements MethodInjector{
 	
 	@Override
 	public  String getMethodProcessReturn(String className, String methodName){
-		return String.format(methodProcessReturn, config.getLogMethodLatency());
+		return String.format(methodProcessReturn, config.getTimingThreshold());
 	}	
 	
 	@Override
 	public  String getMethodProcessException(String className, String methodName){
-		return String.format(methodProcessException, config.getLogMethodLatency());
+		return String.format(methodProcessException, config.getTimingThreshold());
 	}	
 
 	@Override
 	public  String getMethodProcessFinally(String className, String methodName){
-		return String.format(methodProcessFinally, config.getLogMethodLatency());
+		return String.format(methodProcessFinally, config.getTimingThreshold());
 	}	
 	
 	public boolean isNeedInject(String className){

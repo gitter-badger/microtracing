@@ -28,15 +28,15 @@ public class LogTraceConfig{
 	private boolean enableJdbcTrace = false;
 	private boolean enableTimingLog = false;
 	private boolean enableExceptionLog = false;
-	private int logMethodLatency = 500;
+	private int timingThreshold = 500;
 	
 	private  Set<String> includePackages = new HashSet<String>();
 	private  Set<String> excludePackages = new HashSet<String>();
 	private  Map<String, List<String>> traceMethodCall = new HashMap<String, List<String>>(); // class, methods
 	private  Map<String, List<String>> traceMethodProcess = new HashMap<String, List<String>>(); // class, methods
 	
-	public int getLogMethodLatency(){
-		return logMethodLatency;
+	public int getTimingThreshold(){
+		return timingThreshold;
 	}
 	
 	public  void addProfileClass(String className) {
@@ -254,8 +254,8 @@ public class LogTraceConfig{
 		this.enableTimingLog = Boolean.parseBoolean(properties.getProperty("logtrace.enableTimingLog"));
 		this.enableExceptionLog = Boolean.parseBoolean(properties.getProperty("logtrace.enableExceptionLog"));
 	
-		String slogMethodLatency = properties.getProperty("logtrace.logMethodLatency");
-		if (slogMethodLatency!=null) this.logMethodLatency = Integer.parseInt(slogMethodLatency);
+		String stimingThreshold= properties.getProperty("logtrace.timingThreshold");
+		if (stimingThreshold!=null) this.timingThreshold = Integer.parseInt(stimingThreshold);
 		
 		String sIncludePackages = properties.getProperty("logtrace.includePackages");
 		if (sIncludePackages!=null && sIncludePackages.trim().length()>0){

@@ -33,7 +33,7 @@ public class ExceptionInjector implements MethodInjector{
 	
 	@Override
 	public  String getMethodProcessReturn(String className, String methodName){
-		return String.format(methodProcessReturn, config.getLogMethodLatency());
+		return methodProcessReturn;
 	}	
 	
 	@Override
