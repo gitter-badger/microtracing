@@ -1,34 +1,37 @@
-1. Java client application 
-a. put logtrace-{version}-jar-with-dependencies.jar into java startup classpath
-b. add java startup commond line option: -javaagent:/full/path/to/logtrace-0.1-jar-with-dependencies.jar
-c. add tracelog file appender to log4j config file. add [%X{X-B3-TraceId},%X{X-B3-SpanId}] to other appenders' layout.ConversionPattern 
+Weblogic:
 
-2. Weblogic
-a. put logtrace-{version}-jar-with-dependencies.jar into ${DOMAIN_HOME}/lib  and webapp's WEB-INF/lib
+All_in_one installation
+========================
 
-b. edit weblogic start script (like setDomainEnv.sh),  add to JAVA_OPTIONS:
-	export JAVA_OPTS="$JAVA_OPTS -javaagent:${DOMAIN_HOME}/lib/logtrace-{version}-jar-with-dependencies.jar"
-	 
-c. add tracelog file appender to log4j config file. add [%X{X-B3-TraceId},%X{X-B3-SpanId}] to other appenders' layout.ConversionPattern:
-	log4j.logger.com.microtracing=INFO,tracelog
-	log4j.additivity.com.microtracing=false
-	log4j.appender.tracelog=org.apache.log4j.RollingFileAppender
-	log4j.appender.tracelog.maxFileSize=100MB
-	log4j.appender.tracelog.maxBackupIndex=5 
-	log4j.appender.tracelog.Threshold=INFO
-	log4j.appender.tracelog.file=logs/logtrace.log
-	log4j.appender.tracelog.layout=org.apache.log4j.PatternLayout
-	log4j.appender.tracelog.layout.ConversionPattern=%d{ISO8601} %p [%X{X-B3-TraceId},%X{X-B3-SpanId}] %C{3}.%M(%F:%L) : %m %n
+a. Mkdir logtrace in  ${DOMAIN_HOME}/, put logtrace-0.1-jar-with-dependencies.jar and logtrace.properties, log4j2.xml into ${DOMAIN_HOME}/logtrace
+
+b. Edit weblogic start script(like bin/startWeblogic.sh),  add to JAVA_OPTIONS:
+	JAVA_OPTIONS=" -javaagent:${DOMAIN_HOME}/logtrace/logtrace-0.1-jar-with-dependencies.jar=${DOMAIN_HOME}/logtrace/logtrace.properties -Dlog4j.configurationFile=${DOMAIN_HOME}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector ${SAVE_JAVA_OPTIONS} "	
+
+c. Remove any log library jars from webapp's WEB-INF/lib, like commons-logging*.jar, log4j*.jar etc.
+
+That's all.
+
+
+
+Log files
+===================
+
+logs/logapp.log: Application's log messages. 
+logs/logtrace.log: Trace span log messages.
+
+
+
+Configuration files
+===================
+
+logtrace : lograce/logtrace.properties 
+log4j2: logtrace/log4j2.xml
+
 	
-	log4j.appender.console.layout.ConversionPattern=%d{ISO8601} %p [%X{X-B3-TraceId},%X{X-B3-SpanId}] %C{3}.%M(%F:%L) : %m %n
-	
-d. add TraceFilter to web.xml as first filter.
-        <filter>
-                <display-name>TraceFilter</display-name>
-                <filter-name>TraceFilter</filter-name>
-                <filter-class>com.microtracing.tracespan.web.TraceFilter</filter-class>
-        </filter>
-        <filter-mapping>
-                <filter-name>TraceFilter</filter-name>
-                <url-pattern>/servlet/*</url-pattern>
-        </filter-mapping>
+
+Trouble shooting
+=================
+
+1. java.lang.ClassCastException: org.apache.xerces.jaxp.SAXParserFactoryImpl cannot be cast to javax.xml.parsers.SAXParserFactory
+Remove xml api library jars from webapp's WEB-INF/lib, like xml-apis*.jar, xmlParserAPIs*.jar, xmlbeans-qname*.jar etc. Cause javax.xml.* are included in weblogic's library.

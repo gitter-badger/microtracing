@@ -1,0 +1,55 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.microtracing</groupId>
+    <artifactId>microtracing</artifactId>
+    <version>0.1</version>
+  </parent>  
+  <artifactId>logtrace</artifactId>
+  <packaging>jar</packaging>
+  <name>logtrace</name>
+  <url>http://maven.apache.org</url>
+  <dependencies>
+    <dependency>
+      <groupId>com.microtracing</groupId>
+      <artifactId>logagent</artifactId>
+      <version>${project.version}</version>
+    </dependency>	
+    <dependency>
+      <groupId>com.microtracing</groupId>
+      <artifactId>tracespan</artifactId>
+      <version>${project.version}</version>
+    </dependency>	
+  </dependencies>
+  
+  <build>
+    <plugins>
+      <plugin>  
+        <groupId>org.apache.maven.plugins</groupId>  
+        <artifactId>maven-assembly-plugin</artifactId>  
+        <version>2.5.5</version>  
+        <configuration>  
+          <archive>  
+            <manifestEntries>  
+              <Premain-Class>com.microtracing.logagent.LogTraceAgent</Premain-Class>
+            </manifestEntries>  
+          </archive>  
+          <descriptorRefs>  
+            <descriptorRef>jar-with-dependencies</descriptorRef>  
+          </descriptorRefs>  
+        </configuration>  
+        <executions>  
+          <execution>  
+            <id>make-assembly</id>  
+            <phase>package</phase>  
+            <goals>  
+              <goal>single</goal>  
+            </goals>  
+          </execution>  
+        </executions>  
+      </plugin>  
+	  
+    </plugins>
+  </build>    
+</project>
