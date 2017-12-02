@@ -10,6 +10,7 @@
 		<module>logagent</module>
 		<module>tracespan</module>
 		<module>logtrace</module>
+		<module>demo</module>
 	</modules>
     <properties>
       <project.build.sourceEncoding>GBK</project.build.sourceEncoding>

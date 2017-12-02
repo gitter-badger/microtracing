@@ -1,0 +1,3 @@
+java -cp "./demo/target/lib/javassist-3.22.0-GA.jar;./demo/target/lib/slf4j-api-1.7.25.jar;./demo/target/lib/log4j-slf4j-impl-2.3.jar;./demo/target/lib/log4j-api-2.3.jar;./demo/target/lib/log4j-core-2.3.jar;./demo/target/lib/tracespan-0.1.jar;./demo/target/lib/hessian-4.0.51.jar;./demo/target/lib/ojdbc14-9.0.2.0.0.jar;./demo/target/test-classes;./demo/target/classes;"  -Djava.util.logging.config.file="./demo/src/main/resources/logging.properties"  -Dlog4j.configurationFile=./demo/src/main/resources/log4j2.xml -javaagent:./demo/target/lib/logagent-0.1.jar=./demo/src/main/resources/logtrace.properties com.microtracing.demo.TimeTest
+
+pause
