@@ -80,6 +80,10 @@ log4j2.xml (from tracespan\src\main\resources\)
   
 >  -javaagent:{ABSOLUTE PATH}/logtrace/logtrace-{VERSION}-jar-with-dependencies.jar={ABSOLUTE PATH}/logtrace/logtrace.properties -Dlog4j.configurationFile={ABSOLUTE PATH}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
 
+- 参数说明
+  - -javaagent  指定logtrace代理库jar文件（会加入classpath），jar文件后参数为logtrace.properties路径
+  - -Dlog4j.configurationFile  指定log4j2.xml路径
+  - -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector  指定log4j2启用异步模式
 
 - 配置webapp的WEB-INF/web.xml增加TraceFilter
 ```
