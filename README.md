@@ -51,6 +51,8 @@ log4j2.xml (from tracespan\src\main\resources\)
 
 - 配置Weblogic Server启动参数
 
+  *注：{VERSION}修改为实际版本号*
+
   - **方法一：** 通过Webligc Administrator Console配置相应server的服务器启动参数，增加：
   
   > -javaagent:${DOMAIN_HOME}/logtrace/logtrace-{VERSION}-jar-with-dependencies.jar=${DOMAIN_HOME}/logtrace/logtrace.properties -Dlog4j.configurationFile=${DOMAIN_HOME}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
@@ -62,7 +64,6 @@ log4j2.xml (from tracespan\src\main\resources\)
 - 从webapp的WEB-INF/lib下移除所有日志库，如commons-logging*.jar, log4j*.jar等（已在logtrace-{VERSION}-jar-with-dependencies.jar中包含）
 - 框架自动追踪weblogic server调用servlet，无需配置filter
 
-*注：{VERSION}修改为实际版本号*
 
 ### 其他应用服务器
 - 在应用服务器工作目录下建立logtrace目录，复制以下文件至logtrace目录：
@@ -75,9 +76,10 @@ log4j2.xml (from tracespan\src\main\resources\)
 
 - 修改应用服务器启动脚本，在java之后添加启动参数：
 
+  *注：{ABSOLUTE PATH}修改为logtrace目录所在绝对路径； {VERSION}修改为实际版本号*
+  
 >  -javaagent:{ABSOLUTE PATH}/logtrace/logtrace-{VERSION}-jar-with-dependencies.jar={ABSOLUTE PATH}/logtrace/logtrace.properties -Dlog4j.configurationFile={ABSOLUTE PATH}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
 
-*注：{ABSOLUTE PATH}修改为logtrace目录所在绝对路径； {VERSION}修改为实际版本号*
 
 - 配置webapp的WEB-INF/web.xml增加TraceFilter
 ```
@@ -120,9 +122,10 @@ log4j2.xml (from tracespan\src\main\resources\)
 
 - 配置说明
 
-  默认配置输出终端：Console, logtrace, logapp. 默认等级WARN及以上输出至Console和logapp.
-  - logtrace  输出跟踪框架日志，默认等级DEBUG
-  - logapp  输出应用日志，默认等级为WARN. 根据实际需要配置应用Logger，例如
+  默认配置输出终端：Console, tracelog, applog. 默认等级WARN及以上输出至Console和applog.
+  - tracelog  输出跟踪框架日志，默认等级DEBUG.  日志文件：logs\logtrace.log
+  - applog  输出应用日志，默认等级WARN. 日志文件：logs\logapp.log
+  - 根据实际需要配置添加应用Logger，例如
   
 ```
         <Logger name="com.mycompany.myapp" level="INFO" additivity="false">  
@@ -147,4 +150,5 @@ log4j2.xml (from tracespan\src\main\resources\)
 
 ## 常见问题
 
-### slf4j初始化失败
+### Slf4j初始化失败
+检查classpath和WEB-INF/lib是否有其他slf4j实现库，进行清除。
