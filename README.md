@@ -51,13 +51,13 @@ log4j2.xml (from tracespan\src\main\resources\)
 
   - **方法一：** 通过Webligc Administrator Console配置相应server的服务器启动参数，增加：
   
-> -javaagent:${DOMAIN_HOME}/logtrace/logtrace-0.1-jar-with-dependencies.jar=${DOMAIN_HOME}/logtrace/logtrace.properties -Dlog4j.configurationFile=${DOMAIN_HOME}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+  > -javaagent:${DOMAIN_HOME}/logtrace/logtrace-0.1-jar-with-dependencies.jar=${DOMAIN_HOME}/logtrace/logtrace.properties -Dlog4j.configurationFile=${DOMAIN_HOME}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
 
   - **方法二：** 直接修改启动脚本，修改JAVA_OPTIONS增加启动参数，例如修改bin/startWeblogic.sh：
   
-> JAVA_OPTIONS=" -javaagent:${DOMAIN_HOME}/logtrace/logtrace-0.1-jar-with-dependencies.jar=${DOMAIN_HOME}/logtrace/logtrace.properties -Dlog4j.configurationFile=${DOMAIN_HOME}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector ${SAVE_JAVA_OPTIONS} "	  
+  > JAVA_OPTIONS=" -javaagent:${DOMAIN_HOME}/logtrace/logtrace-0.1-jar-with-dependencies.jar=${DOMAIN_HOME}/logtrace/logtrace.properties -Dlog4j.configurationFile=${DOMAIN_HOME}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector ${SAVE_JAVA_OPTIONS} "	  
 
-- 框架自动追踪weblogic server调用servlet，无需配置filter
+  - 框架自动追踪weblogic server调用servlet，无需配置filter
 
 ### 其他应用服务器
 #### 配置应用服务器启动脚本
