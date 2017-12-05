@@ -35,9 +35,9 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 			
 	private LogTraceConfig config;
 	
-	private Set<ClassInjector> classInjectors = new HashSet<ClassInjector>();
-	private Set<CallInjector> callInjectors = new HashSet<CallInjector>();
-	private Set<MethodInjector> methodInjectors = new HashSet<MethodInjector>();
+	private List<ClassInjector> classInjectors = new ArrayList<ClassInjector>();
+	private List<CallInjector> callInjectors = new ArrayList<CallInjector>();
+	private List<MethodInjector> methodInjectors = new ArrayList<MethodInjector>();
 	
 	private List<String> injectedClasses = new ArrayList<String>();
 	
@@ -46,10 +46,13 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 		initInjectors();
 	}
 	
+	private void addOnce(List list, Object item){
+		if (!list.contains(item)) list.add(item);
+	}
 
 	private void initInjectors() {
 		LogInjector logInjector = new LogInjector(config);
-		CallTimingInjector callTimeingInjector = new CallTimingInjector(config);
+		//CallTimingInjector callTimeingInjector = new CallTimingInjector(config);
 		MethodTimingInjector methodTimeingInjector = new MethodTimingInjector(config);
 		ExceptionInjector exInjector = new ExceptionInjector(config);
 		
@@ -64,32 +67,36 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 		
 		ServletServiceInjector servletInjector = new ServletServiceInjector(config);
 		
-		if (config.isEnableLog()) classInjectors.add(logInjector);
+		if (config.isEnableLog()) {
+			addOnce(classInjectors,logInjector);
+		}
 
-		callInjectors.add(spanCallInjector);
+		if (config.isEnableExceptionLog()) {
+			addOnce(methodInjectors,exInjector);
+		}
+		
 		if (config.isEnableHttpURLConnectionTrace()) {
-			callInjectors.add(urlSendInjector);
-			callInjectors.add(urlRecvInjector);
+			addOnce(callInjectors,urlSendInjector);
+			addOnce(callInjectors,urlRecvInjector);
 		}
 		
 		if (config.isEnableServletTrace()) {
-			callInjectors.add(servletInjector);
+			addOnce(callInjectors,servletInjector);
 		}
 		
 		if (config.isEnableJdbcTrace()) {
-			callInjectors.add(jdbcStmtInjector);
-			callInjectors.add(jdbcExeInjector);
+			addOnce(callInjectors,jdbcStmtInjector);
+			addOnce(callInjectors,jdbcExeInjector);
 		}
 		
-		methodInjectors.add(spanMethodInjector);
 		if (config.isEnableTimingLog()) {
 			//callInjectors.add(callTimeingInjector); //spanCallInjector has duration msg.
-			methodInjectors.add(methodTimeingInjector);
+			addOnce(methodInjectors,methodTimeingInjector);
 		}
 		
-		if (config.isEnableExceptionLog()) {
-			methodInjectors.add(exInjector);
-		}
+		addOnce(callInjectors,spanCallInjector);
+		addOnce(methodInjectors,spanMethodInjector);
+		
 		logger.fine("ClassInjector:"+classInjectors.toString());		
 		logger.fine("CallInjector:"+callInjectors.toString());
 		logger.fine("MethodInjector:"+methodInjectors.toString());
