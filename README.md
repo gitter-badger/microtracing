@@ -10,7 +10,7 @@
 - 将traceId在服务器端传递至调用链中所有应用服务
 - 每个应用服务的处理过程（称为Span）均生成全局唯一的spanId，记录traceId, spanId, startTime, endTime
 - 每次远程服务调用过程（称为RPC Span）均生成全局唯一的rpc spanId
-  - 调用方记录traceId, parentId（调用方当前处理过程spanId）, rpc spanId, client send time, client receive time
+  - 调用方记录traceId, parentId（调用方当前处理过程spanId）, rpc spanId, client send time, client receive time
   - 服务方记录traceId, rpc spanId, server receive time, server send time. 服务方处理过程Span的parentId设为rpc spanId
 - 标准化应用日志输出格式，输出当前traceId和spanId
 
@@ -49,17 +49,15 @@ log4j2.xml (from tracespan\src\main\resources\)
 
 - 配置Weblogic Server启动参数
 
-  - **方法一：** 修改\config\config.xml，在对应server的server-start节点增加启动参数，例如：
+  - **方法一：** 通过Webligc Administrator Console配置相应server的服务器启动参数，增加：
   
-```
-    <server-start>
-      <arguments>-javaagent:${DOMAIN_HOME}/logtrace/logtrace-0.1-jar-with-dependencies.jar=${DOMAIN_HOME}/logtrace/logtrace.properties -Dlog4j.configurationFile=${DOMAIN_HOME}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector</arguments>
-    </server-start>
-```    
+> -javaagent:${DOMAIN_HOME}/logtrace/logtrace-0.1-jar-with-dependencies.jar=${DOMAIN_HOME}/logtrace/logtrace.properties -Dlog4j.configurationFile=${DOMAIN_HOME}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
 
-  - **方法二：** 直接修改启动脚本，修改JAVA_OPTIONS增加启动参数，例如修改bin/startWeblogic.sh：
+  - **方法二：** 直接修改启动脚本，修改JAVA_OPTIONS增加启动参数，例如修改bin/startWeblogic.sh：
   
 > JAVA_OPTIONS=" -javaagent:${DOMAIN_HOME}/logtrace/logtrace-0.1-jar-with-dependencies.jar=${DOMAIN_HOME}/logtrace/logtrace.properties -Dlog4j.configurationFile=${DOMAIN_HOME}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector ${SAVE_JAVA_OPTIONS} "	  
+
+- 框架自动追踪weblogic server调用servlet，无需配置filter
 
 ### 其他应用服务器
 #### 配置应用服务器启动脚本
