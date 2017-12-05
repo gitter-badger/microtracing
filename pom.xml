@@ -13,7 +13,7 @@
 		<module>demo</module>
 	</modules>
     <properties>
-      <project.build.sourceEncoding>GBK</project.build.sourceEncoding>
-      <maven.compiler.encoding>GBK</maven.compiler.encoding>  
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <maven.compiler.encoding>UTF-8</maven.compiler.encoding>  
     </properties>	
 </project>
