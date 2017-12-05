@@ -51,16 +51,18 @@ log4j2.xml (from tracespan\src\main\resources\)
 
   - **方法一：** 通过Webligc Administrator Console配置相应server的服务器启动参数，增加：
   
-  > -javaagent:${DOMAIN_HOME}/logtrace/logtrace-0.1-jar-with-dependencies.jar=${DOMAIN_HOME}/logtrace/logtrace.properties -Dlog4j.configurationFile=${DOMAIN_HOME}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+  > -javaagent:${DOMAIN_HOME}/logtrace/logtrace-{VERSION}-jar-with-dependencies.jar=${DOMAIN_HOME}/logtrace/logtrace.properties -Dlog4j.configurationFile=${DOMAIN_HOME}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
 
   - **方法二：** 直接修改启动脚本，修改JAVA_OPTIONS增加启动参数，例如修改bin/startWeblogic.sh：
   
-  > JAVA_OPTIONS=" -javaagent:${DOMAIN_HOME}/logtrace/logtrace-0.1-jar-with-dependencies.jar=${DOMAIN_HOME}/logtrace/logtrace.properties -Dlog4j.configurationFile=${DOMAIN_HOME}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector ${SAVE_JAVA_OPTIONS} "	  
+  > JAVA_OPTIONS=" -javaagent:${DOMAIN_HOME}/logtrace/logtrace-{VERSION}-jar-with-dependencies.jar=${DOMAIN_HOME}/logtrace/logtrace.properties -Dlog4j.configurationFile=${DOMAIN_HOME}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector ${SAVE_JAVA_OPTIONS} "	  
 
-  - 框架自动追踪weblogic server调用servlet，无需配置filter
+- 从webapp的WEB-INF/lib下移除所有日志库，如commons-logging*.jar, log4j*.jar等（已在logtrace-{VERSION}-jar-with-dependencies.jar中包含）
+- 框架自动追踪weblogic server调用servlet，无需配置filter
+
+*注：{VERSION}修改为实际版本号*
 
 ### 其他应用服务器
-#### 配置应用服务器启动脚本
 - 在应用服务器工作目录下建立logtrace目录，复制以下文件至logtrace目录：
 
 ```
@@ -71,13 +73,14 @@ log4j2.xml (from tracespan\src\main\resources\)
 
 - 修改应用服务器启动脚本，在java之后添加启动参数：
 
->  -javaagent:<ABSOLUTE PATH>/logtrace/logtrace-0.1-jar-with-dependencies.jar=<ABSOLUTE PATH>/logtrace/logtrace.properties -Dlog4j.configurationFile=<ABSOLUTE PATH>/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+>  -javaagent:{ABSOLUTE PATH}/logtrace/logtrace-{VERSION}-jar-with-dependencies.jar={ABSOLUTE PATH}/logtrace/logtrace.properties -Dlog4j.configurationFile=<ABSOLUTE PATH>/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
 
+*注：{ABSOLUTE PATH}修改为logtrace目录所在绝对路径； {VERSION}修改为实际版本号*
 
-#### 配置webapp增加TraceFilter
-- 复制`tracespan\target\tracespan-*.jar`及依赖库(from tracespan\target\lib)至webapp的lib目录
-- 复制`tracespan\src\main\resources\log4j2.xml`至webapp的classes目录
-- 修改web.xml配置TraceFilter
+- 配置webapp增加TraceFilter
+  - 复制`tracespan\target\tracespan-*.jar`及依赖库(from tracespan\target\lib)至webapp的lib目录
+  - 复制`tracespan\src\main\resources\log4j2.xml`至webapp的classes目录
+  - 修改web.xml配置TraceFilter
 ```
   <filter>
     <display-name>TraceFilter</display-name>
