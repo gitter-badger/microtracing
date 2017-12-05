@@ -99,7 +99,8 @@ log4j2.xml (from tracespan\src\main\resources\)
   配置需要跟踪的包、类、方法及启用的特性等
 
 - 配置说明
-  - logtrace.includePackages 跟踪的包
+
+  - logtrace.includePackages 注入跟踪的包
   - logtrace.excludePackages 排除跟踪的包
   - logtrace.traceMethodCall 跟踪指定方法被调用情况（从includePackages里发起调用）
   - logtrace.traceMethodProcess 跟踪指定方法执行情况
@@ -107,8 +108,8 @@ log4j2.xml (from tracespan\src\main\resources\)
   - logtrace.enableServletTrace 启用Servlet执行跟踪
   - logtrace.enableJdbcTrace 启用JDBC执行跟踪
   - logtrace.enableExceptionLog 启用异常跟踪
-  - logtrace.enableTimingLog 启用耗时记录
-  - logtrace.timingThreshold 启用耗时记录的阈值（如方法执行时间超过该值则记录日志）
+  - logtrace.enableTimingLog 启用耗时记录（方法执行时间超过指定阈值则记录相关信息）
+  - logtrace.timingThreshold 启用耗时记录的阈值
   
 - 参考配置
   - 默认配置: logagent\src\main\resources\logtrace.properties
@@ -119,8 +120,7 @@ log4j2.xml (from tracespan\src\main\resources\)
 
 - 配置说明
 
-  默认配置输出终端：Console, logtrace, logapp. 默认等级WARN及以上输出至Console和logapp.
-
+  默认配置输出终端：Console, logtrace, logapp. 默认等级WARN及以上输出至Console和logapp.
   - logtrace  输出跟踪框架日志，默认等级DEBUG
   - logapp  输出应用日志，默认等级为WARN. 根据实际需要配置应用Logger，例如
   
@@ -144,3 +144,7 @@ log4j2.xml (from tracespan\src\main\resources\)
 ```
 2017-12-05 16:32:23.019 INFO  [68a35c074328b600,ce4fffc041b09a35] com.microtracing.tracespan.Span : SpanEvent{event="cs", spanId=ce4fffc041b09a35, timestamp=1512462743019}
 ```
+
+## 常见问题
+
+### slf4j初始化失败
