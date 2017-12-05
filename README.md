@@ -20,6 +20,12 @@
 - **logtrace**: 用于将tracespan、logagent及相关依赖库打包集成
 - **demo**: 演示程序
 
+## 依赖关系
+- **javassist**: 3.22.0-GA或以上版本，用于类加载时动态修改字节码注入日志和跟踪代码
+- **slf4j**: （slf4j-api, jcl-over-slf4j,log4j-over-slf4j, jul-to-slf4j）1.7.25或以上版本，提供日志接口
+- **log4j2**: （log4j-api, log4j-core, log4j-web, log4j-slf4j-impl）2.3或以上版本，提供日志实现
+- **disruptor**: 3.3.7或以上版本，实现log4j2日志高性能异步输出
+
 ## 配置文件
 - **logtrace.properties**: 配置需要跟踪的包、类、方法及启用的特性等
   - 默认配置: logagent\src\main\resources\logtrace.properties
