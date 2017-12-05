@@ -22,10 +22,12 @@ import com.microtracing.tracespan.Tracer;
 
 public class TimeTest {
 	private static final Logger logger =  LoggerFactory.getLogger(TimeTest.class);
+	
+	//auto traced: logtrace.traceMethodProcess=com.microtracing.demo.TimeTest.main;
     public static void main(String[] args) throws Exception{
-    	Tracer tracer = Tracer.getTracer();
-    	Span span = tracer.getCurrentSpan();
-    	span.start();
+    	//Tracer tracer = Tracer.getTracer();
+    	//Span span = tracer.getCurrentSpan();
+    	//span.start();
     	TimeTest t = new TimeTest();
     	try {
 	        t.sayHello();
@@ -37,7 +39,7 @@ public class TimeTest {
 				ex.printStackTrace();
 			}
     	}finally {
-    		span.stop();
+    		//span.stop();
     	}
     }
 

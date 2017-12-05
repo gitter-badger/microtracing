@@ -31,16 +31,16 @@
         
         <Logger name="com.microtracing" level="DEBUG" additivity="false">  
              <AppenderRef ref="tracelog"/>  
-             <AppenderRef ref="Console" />
+             <AppenderRef ref="Console" /><!-- for demo only-->
         </Logger>  
         <Logger name="com.microtracing.tracespan.web.LogPrintStream" level="DEBUG" additivity="false">  
              <AppenderRef ref="applog"/>  
-             <AppenderRef ref="Console" />
+             <AppenderRef ref="Console" /><!-- for demo only-->
         </Logger>  
         
-        <Logger name="com.microtracing.demo" level="DEBUG" >  
+        <Logger name="com.microtracing.demo" level="DEBUG" additivity="false" >  
              <AppenderRef ref="applog"/>  
-             <AppenderRef ref="Console" />
+             <AppenderRef ref="Console" /><!-- for demo only-->
         </Logger>  
         
     </Loggers>
