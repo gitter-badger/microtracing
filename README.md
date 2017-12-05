@@ -85,7 +85,7 @@ log4j2.xml (from tracespan\src\main\resources\)
   <filter>
     <display-name>TraceFilter</display-name>
     <filter-name>TraceFilter</filter-name>
-    <filter-class>com.cntaiping.microtracing.tracespan.web.TraceFilter</filter-class>
+    <filter-class>com.microtracing.tracespan.web.TraceFilter</filter-class>
   </filter>
   <filter-mapping>
     <filter-name>TraceFilter</filter-name>
