@@ -14,12 +14,13 @@ A distributed systems tracing and logging infrastructure based on javaagent, tra
 - 每次远程服务调用过程（称为RPC Span）均生成全局唯一的rpc spanId
   - 调用方记录traceId, parentId（调用方当前处理过程spanId）, rpc spanId, client send time, client receive time
   - 服务方记录traceId, rpc spanId, server receive time, server send time. 服务方处理过程Span的parentId设为rpc spanId
-- 引入高性能日志框架，输出trace trees and spans
-- 标准化应用日志输出格式，增加traceId和spanId，用于关联应用日志相关事件
-- 日志可使用ELK(Elasticsearch,Logstash,Kibana)或Splunk进行收集、搜索、分析、展现
+- 使用高性能日志框架输出trace trees and spans
+- 应用日志框架均桥接至slf4j, 通过slf4j + log4j2进行统一输出
+- 标准化应用日志输出格式，增加traceId和spanId，用于关联用户一次请求所有相关日志事件
+- 日志可使用ELK(Elasticsearch,Logstash,Kibana)或Splunk进行收集、搜索、提取、关联、分析、展现
 
 ## 模块说明
-- **tracespan**: 实现tracing span的核心代码，并包含用于web应用的TraceFilter
+- **tracespan**: 实现trace trees and spans的核心代码，并包含用于web应用的TraceFilter
 - **logagent**: 使用javaagent和javassit技术自动注入日志和跟踪代码
 - **logtrace**: 用于将tracespan、logagent及相关依赖库打包集成
 - **demo**: 演示程序
@@ -28,59 +29,7 @@ A distributed systems tracing and logging infrastructure based on javaagent, tra
 - **javassist**: 3.22.0-GA或以上版本，用于类加载时动态修改字节码注入日志和跟踪代码
 - **slf4j**: （slf4j-api, jcl-over-slf4j,log4j-over-slf4j, jul-to-slf4j）1.7.25或以上版本，提供日志接口
 - **log4j2**: （log4j-api, log4j-core, log4j-web, log4j-slf4j-impl）2.3或以上版本，提供日志实现
-- **disruptor**: 3.3.7或以上版本，实现log4j2日志高性能异步输出
-
-## 配置文件
-### logtrace.properties
-  配置需要跟踪的包、类、方法及启用的特性等
-
-- 配置说明
-  - logtrace.includePackages 跟踪的包
-  - logtrace.excludePackages 排除跟踪的包
-  - logtrace.traceMethodCall 跟踪指定方法被调用情况（从includePackages里发起调用）
-  - logtrace.traceMethodProcess 跟踪指定方法执行情况
-  - logtrace.enableHttpURLConnectionTrace 启用HttpURLConnection注入跟踪远程访问
-  - logtrace.enableServletTrace 启用Servlet执行跟踪
-  - logtrace.enableJdbcTrace 启用JDBC执行跟踪
-  - logtrace.enableExceptionLog 启用异常跟踪
-  - logtrace.enableTimingLog 启用耗时记录
-  - logtrace.timingThreshold 启用耗时记录的阈值（如方法执行时间超过该值则记录日志）
-  
-- 参考配置
-  - 默认配置: logagent\src\main\resources\logtrace.properties
-  - 演示配置: demo\src\main\resources\logtrace.properties
-  
-### log4j2.xml
-  配置日志输出策略、文件及格式等
-
-- 配置说明
-
-  默认配置输出终端：Console, logtrace, logapp. 默认等级WARN及以上输出至Console和logapp.
-
-  - logtrace  输出跟踪框架日志，默认等级DEBUG
-  - logapp  输出应用日志，默认等级为WARN. 根据实际需要配置应用Logger，例如
-  
-```
-        <Logger name="com.mycompany.myapp" level="INFO" additivity="false">  
-             <AppenderRef ref="applog"/>  
-        </Logger>  
-```
-  注：System.out.println内容会自动转换为log以DEBUG等级输出至logapp
-  
-- 参考配置
-  - 默认配置: tracespan\src\main\resources\log4j2.xml
-  - 演示配置: demo\src\main\resources\log4j2.xml
-  - 默认输出日志文件: logs\logtrace.log
- 
-- 日志文件
-  - logs\logtrace.log
-  - logs\logapp.log
-
-- 日志输出格式
-
-```
-2017-12-05 16:32:23.019 INFO  [68a35c074328b600,ce4fffc041b09a35] com.microtracing.tracespan.Span : SpanEvent{event="cs", spanId=ce4fffc041b09a35, timestamp=1512462743019}
-```
+- **disruptor**: 3.3.7或以上版本，支持log4j2日志框架实现高性能并发异步输出
 
 ## 编译及演示
 
@@ -143,3 +92,55 @@ log4j2.xml (from tracespan\src\main\resources\)
   </filter-mapping>
 ```
 - 从webapp的WEB-INF/lib下移除所有日志库，如commons-logging*.jar, log4j*.jar等（已在logtrace-{VERSION}-jar-with-dependencies.jar中包含）
+
+
+## 配置文件
+### logtrace.properties
+  配置需要跟踪的包、类、方法及启用的特性等
+
+- 配置说明
+  - logtrace.includePackages 跟踪的包
+  - logtrace.excludePackages 排除跟踪的包
+  - logtrace.traceMethodCall 跟踪指定方法被调用情况（从includePackages里发起调用）
+  - logtrace.traceMethodProcess 跟踪指定方法执行情况
+  - logtrace.enableHttpURLConnectionTrace 启用HttpURLConnection注入跟踪远程访问
+  - logtrace.enableServletTrace 启用Servlet执行跟踪
+  - logtrace.enableJdbcTrace 启用JDBC执行跟踪
+  - logtrace.enableExceptionLog 启用异常跟踪
+  - logtrace.enableTimingLog 启用耗时记录
+  - logtrace.timingThreshold 启用耗时记录的阈值（如方法执行时间超过该值则记录日志）
+  
+- 参考配置
+  - 默认配置: logagent\src\main\resources\logtrace.properties
+  - 演示配置: demo\src\main\resources\logtrace.properties
+  
+### log4j2.xml
+  配置日志输出策略、文件及格式等
+
+- 配置说明
+
+  默认配置输出终端：Console, logtrace, logapp. 默认等级WARN及以上输出至Console和logapp.
+
+  - logtrace  输出跟踪框架日志，默认等级DEBUG
+  - logapp  输出应用日志，默认等级为WARN. 根据实际需要配置应用Logger，例如
+  
+```
+        <Logger name="com.mycompany.myapp" level="INFO" additivity="false">  
+             <AppenderRef ref="applog"/>  
+        </Logger>  
+```
+  注：System.out.println内容会自动转换为log以DEBUG等级输出至logapp
+  
+- 参考配置
+  - 默认配置: tracespan\src\main\resources\log4j2.xml
+  - 演示配置: demo\src\main\resources\log4j2.xml
+ 
+- 日志文件
+  - logs\logtrace.log
+  - logs\logapp.log
+
+- 日志输出格式
+
+```
+2017-12-05 16:32:23.019 INFO  [68a35c074328b600,ce4fffc041b09a35] com.microtracing.tracespan.Span : SpanEvent{event="cs", spanId=ce4fffc041b09a35, timestamp=1512462743019}
+```
