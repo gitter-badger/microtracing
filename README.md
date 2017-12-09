@@ -1,4 +1,4 @@
-# Microtracing
+# microtracing.logtrace
 A distributed systems tracing and logging infrastructure based on javaagent, trace trees and spans(see Google Dapper), slf4j and log4j2. 
 
 基于javaagent、trace trees and spans(参考Google Dapper)、slf4j和log4j2实现的分布式系统全链路调用跟踪及日志框架。
