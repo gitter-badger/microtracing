@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 @HandlesTypes({ TraceFilter.class }) 
 public class TraceServletContainerInitializer implements ServletContainerInitializer {
-	private static final Logger logger =  LoggerFactory.getLogger(ServletContainerInitializer.class);
+	private static final Logger logger =  LoggerFactory.getLogger(TraceServletContainerInitializer.class);
 
 	private static final String FILTER_MAPPING = "/*"; 
 	
@@ -32,7 +32,7 @@ public class TraceServletContainerInitializer implements ServletContainerInitial
 
 	    filter.addMappingForUrlPatterns(dispatcherTypes, true, FILTER_MAPPING); 
 	    
-	    logger.info("add System.out & System.err to log");
+	    logger.info("add System.out");
 	    if (!(System.out instanceof LogPrintStream)) {
 	    	LogPrintStream out = new LogPrintStream(System.out);
 	    	System.setOut(out);
