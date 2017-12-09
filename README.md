@@ -70,10 +70,12 @@ tracespan/src/main/resources/log4j2.xml
 ### Tomcat应用服务器
 - 复制`logtrace/target/lib`下所有文件至`%CATALINA_BASE%/lib`目录
 - 复制`logagent/src/main/resources/logtrace.properties`和`tracespan/src/main/resources/log4j2.xml`至`%CATALINA_BASE%/conf`目录
-- 在`%CATALINA_BASE%/bin`目录下新建或编辑`setenv.bat`文件，添加内容：
-```
-set CATALINA_OPTS=-javaagent:%CATALINA_BASE%/lib/logagent-0.1.jar=file:/%CATALINA_BASE%/conf/logtrace.properties -Dlog4j.configurationFile=file:/%CATALINA_BASE%/conf/log4j2.xml -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
-```
+- 配置tomcat启动参数，在`%CATALINA_BASE%/bin`目录下新建或编辑`setenv.bat`文件，添加内容：
+
+  *注：{VERSION}修改为实际版本号*
+  ```
+  set CATALINA_OPTS=-javaagent:%CATALINA_BASE%/lib/logagent-{VERSION}.jar=file:/%CATALINA_BASE%/conf/logtrace.properties -Dlog4j.configurationFile=file:/%CATALINA_BASE%/conf/log4j2.xml -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+  ```
 - 从webapp的WEB-INF/lib下移除所有日志库，如commons-logging*.jar, log4j*.jar等（已在%CATALINA_BASE%/lib/下包含）
 - 框架自动追踪tomcat调用filters和servlets，无需手工配置filter
 
