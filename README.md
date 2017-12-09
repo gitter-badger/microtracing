@@ -15,7 +15,7 @@ A distributed systems tracing and logging infrastructure based on javaagent, tra
   - 调用方记录traceId, parentId（调用方当前处理过程spanId）, rpc spanId, client send time, client receive time
   - 服务方记录traceId, rpc spanId, server receive time, server send time. 服务方处理过程Span的parentId设为rpc spanId
 - 使用高性能日志框架输出trace trees and spans
-- 应用日志框架均桥接至slf4j, 通过slf4j + log4j2进行统一输出
+- 统一应用日志框架为slf4j + log4j2，原应用日志框架均桥接至slf4j进行输出
 - 标准化应用日志输出格式，增加traceId和spanId，用于关联用户一次请求所有相关日志事件
 - 日志可使用ELK(Elasticsearch,Logstash,Kibana)或Splunk进行收集、搜索、提取、关联、分析、展现
 
@@ -142,7 +142,7 @@ tracespan/src/main/resources/log4j2.xml
   默认配置输出终端：Console, tracelog, applog. 默认等级WARN及以上输出至Console和applog.
   - tracelog  输出跟踪框架日志，默认等级DEBUG.  日志文件：logs/logtrace.log
   - applog  输出应用日志，默认等级WARN. 日志文件：logs/logapp.log
-  - 根据实际需要配置添加应用Logger，例如
+  - 根据实际需要配置添加应用Logger，例如
   
 ```
         <Logger name="com.mycompany.myapp" level="INFO" additivity="false">  
