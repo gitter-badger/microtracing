@@ -38,6 +38,11 @@ mvn clean package
 demo.bat
 ```
 
+## 程序使用
+
+- 程序无需任何修改，框架安装部署后动态添加植入点，自动对用户请求处理过程和服务调用进行跟踪并输出日志
+- 程序推荐使用slf4j输出日志，也可继续使用原日志框架（包括log4j 1.x, apache common logging, java logging util等），输出信息自动与traceId,spanId关联作为当前Span的Annotation.
+
 ## 安装部署
 
 ### Weblogic应用服务器
