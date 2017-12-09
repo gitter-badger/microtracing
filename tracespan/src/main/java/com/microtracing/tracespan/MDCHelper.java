@@ -10,7 +10,7 @@ import org.slf4j.spi.MDCAdapter;
 
 public class MDCHelper {
 
-	private static boolean injectOthers = true;
+	private static boolean injectOthers = false;
 	
 	private static List<MDCAdapter> mdcas = new ArrayList<MDCAdapter>();
 	static{
