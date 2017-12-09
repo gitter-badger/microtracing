@@ -1,4 +1,4 @@
-# Microtracing
+# microtracing.logtrace
 A distributed systems tracing and logging infrastructure based on javaagent, trace trees and spans(see Google Dapper), slf4j and log4j2. 
 
 基于javaagent、trace trees and spans(参考Google Dapper)、slf4j和log4j2实现的分布式系统全链路调用跟踪及日志框架。
@@ -15,7 +15,7 @@ A distributed systems tracing and logging infrastructure based on javaagent, tra
   - 调用方记录traceId, parentId（调用方当前处理过程spanId）, rpc spanId, client send time, client receive time
   - 服务方记录traceId, rpc spanId, server receive time, server send time. 服务方处理过程Span的parentId设为rpc spanId
 - 使用高性能日志框架输出trace trees and spans
-- 应用日志框架均桥接至slf4j, 通过slf4j + log4j2进行统一输出
+- 统一应用日志框架为slf4j + log4j2，原应用日志框架均桥接至slf4j进行输出
 - 标准化应用日志输出格式，增加traceId和spanId，用于关联用户一次请求所有相关日志事件
 - 日志可使用ELK(Elasticsearch,Logstash,Kibana)或Splunk进行收集、搜索、提取、关联、分析、展现
 
@@ -37,6 +37,11 @@ A distributed systems tracing and logging infrastructure based on javaagent, tra
 mvn clean package
 demo.bat
 ```
+
+## 程序使用
+
+- 程序无需任何修改，框架安装部署后动态添加植入点，自动对用户请求处理过程和服务调用进行跟踪并输出日志
+- 程序推荐使用slf4j输出日志，也可继续使用原日志框架（包括log4j 1.x, apache common logging, java logging util等），输出信息自动与traceId,spanId关联作为当前Span的Annotation.
 
 ## 安装部署
 
@@ -70,10 +75,12 @@ tracespan/src/main/resources/log4j2.xml
 ### Tomcat应用服务器
 - 复制`logtrace/target/lib`下所有文件至`%CATALINA_BASE%/lib`目录
 - 复制`logagent/src/main/resources/logtrace.properties`和`tracespan/src/main/resources/log4j2.xml`至`%CATALINA_BASE%/conf`目录
-- 在`%CATALINA_BASE%/bin`目录下新建或编辑`setenv.bat`文件，添加内容：
-```
-set CATALINA_OPTS=-javaagent:%CATALINA_BASE%/lib/logagent-0.1.jar=file:/%CATALINA_BASE%/conf/logtrace.properties -Dlog4j.configurationFile=file:/%CATALINA_BASE%/conf/log4j2.xml -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
-```
+- 配置tomcat启动参数，在`%CATALINA_BASE%/bin`目录下新建或编辑`setenv.bat`文件，添加内容：
+
+  *注：{VERSION}修改为实际版本号*
+  ```
+  set CATALINA_OPTS=-javaagent:%CATALINA_BASE%/lib/logagent-{VERSION}.jar=file:/%CATALINA_BASE%/conf/logtrace.properties -Dlog4j.configurationFile=file:/%CATALINA_BASE%/conf/log4j2.xml -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+  ```
 - 从webapp的WEB-INF/lib下移除所有日志库，如commons-logging*.jar, log4j*.jar等（已在%CATALINA_BASE%/lib/下包含）
 - 框架自动追踪tomcat调用filters和servlets，无需手工配置filter
 
@@ -142,7 +149,7 @@ tracespan/src/main/resources/log4j2.xml
   默认配置输出终端：Console, tracelog, applog. 默认等级WARN及以上输出至Console和applog.
   - tracelog  输出跟踪框架日志，默认等级DEBUG.  日志文件：logs/logtrace.log
   - applog  输出应用日志，默认等级WARN. 日志文件：logs/logapp.log
-  - 根据实际需要配置添加应用Logger，例如
+  - 根据实际需要配置添加应用Logger，例如
   
 ```
         <Logger name="com.mycompany.myapp" level="INFO" additivity="false">  
@@ -169,3 +176,6 @@ tracespan/src/main/resources/log4j2.xml
 
 ### Slf4j初始化失败
 检查classpath和WEB-INF/lib是否有其他slf4j实现库，进行清除。
+
+### java.lang.ClassNotFoundException
+CLASSPATH中存在重复jar文件或依赖jar文件分散在不同目录，由不同ClassLoader加载且顺序错误导致，清理JRE/lib,server/lib,webapp/WEB-INF/lib等目录下手工放置的jar文件，并参考tomcat部署方法进行重新部署。
