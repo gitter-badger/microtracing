@@ -55,12 +55,15 @@ tracespan/src/main/resources/log4j2.xml
 
   - **方法一：** 通过Webligc Administrator Console配置相应server的服务器启动参数，增加：
   
-  > -javaagent:${DOMAIN_HOME}/logtrace/logtrace-{VERSION}-jar-with-dependencies.jar=${DOMAIN_HOME}/logtrace/logtrace.properties -Dlog4j.configurationFile=${DOMAIN_HOME}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+  ```
+  -javaagent:${DOMAIN_HOME}/logtrace/logtrace-{VERSION}-jar-with-dependencies.jar=${DOMAIN_HOME}/logtrace/logtrace.properties -Dlog4j.configurationFile=${DOMAIN_HOME}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+  ```
 
   - **方法二：** 直接修改启动脚本，修改JAVA_OPTIONS增加启动参数，例如修改bin/startWeblogic.sh：
   
-  > JAVA_OPTIONS=" <内容同上> ${SAVE_JAVA_OPTIONS} "	  
-
+  ```
+  JAVA_OPTIONS=" <内容同上> ${SAVE_JAVA_OPTIONS} "	  
+  ```
 - 从webapp的WEB-INF/lib下移除所有日志库，如commons-logging*.jar, log4j*.jar等（已在logtrace-{VERSION}-jar-with-dependencies.jar中包含）
 - 框架自动追踪weblogic server调用servlet，无需配置filter
 
@@ -86,8 +89,9 @@ tracespan/src/main/resources/log4j2.xml
 - 修改应用服务器启动脚本，在java之后添加启动参数：
 
   *注：{FULL PATH}修改为logtrace目录所在绝对路径； {VERSION}修改为实际版本号*
-  
->  -javaagent:{FULL PATH}/logtrace/logtrace-{VERSION}-jar-with-dependencies.jar=file:/{FULL PATH}/logtrace/logtrace.properties -Dlog4j.configurationFile=file:/{FULL PATH}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+```
+-javaagent:{FULL PATH}/logtrace/logtrace-{VERSION}-jar-with-dependencies.jar=file:/{FULL PATH}/logtrace/logtrace.properties -Dlog4j.configurationFile=file:/{FULL PATH}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+```
 
 - 参数说明
   - -javaagent  指定logtrace代理库jar文件（会加入classpath），jar文件后参数为logtrace.properties路径
