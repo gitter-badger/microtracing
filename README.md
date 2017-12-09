@@ -44,9 +44,9 @@ demo.bat
 - 在${DOMAIN_HOME}下建立logtrace目录，复制以下文件至logtrace目录：
 
 ```
-logtrace-*-jar-with-dependencies.jar (from logtrace\target\)
-logtrace.properties (from logagent\src\main\resources\)
-log4j2.xml (from tracespan\src\main\resources\)
+logtrace/target/logtrace-*-jar-with-dependencies.jar
+logagent/src/main/resources/logtrace.properties 
+tracespan/src/main/resources/log4j2.xml
 ```
 
 - 配置Weblogic Server启动参数
@@ -59,26 +59,35 @@ log4j2.xml (from tracespan\src\main\resources\)
 
   - **方法二：** 直接修改启动脚本，修改JAVA_OPTIONS增加启动参数，例如修改bin/startWeblogic.sh：
   
-  > JAVA_OPTIONS=" -javaagent:${DOMAIN_HOME}/logtrace/logtrace-{VERSION}-jar-with-dependencies.jar=${DOMAIN_HOME}/logtrace/logtrace.properties -Dlog4j.configurationFile=${DOMAIN_HOME}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector ${SAVE_JAVA_OPTIONS} "	  
+  > JAVA_OPTIONS=" <内容同上> ${SAVE_JAVA_OPTIONS} "	  
 
 - 从webapp的WEB-INF/lib下移除所有日志库，如commons-logging*.jar, log4j*.jar等（已在logtrace-{VERSION}-jar-with-dependencies.jar中包含）
 - 框架自动追踪weblogic server调用servlet，无需配置filter
 
+### Tomcat应用服务器
+- 复制`logtrace/target/lib`下所有文件至`%CATALINA_BASE%/lib`目录
+- 复制`logagent/src/main/resources/logtrace.properties`和`tracespan/src/main/resources/log4j2.xml`至`%CATALINA_BASE%/conf`目录
+- 在`%CATALINA_BASE%/bin`目录下新建或编辑`setenv.bat`文件，添加内容：
+```
+set CATALINA_OPTS=-javaagent:%CATALINA_BASE%/lib/logagent-0.1.jar=file:/%CATALINA_BASE%/conf/logtrace.properties -Dlog4j.configurationFile=file:/%CATALINA_BASE%/conf/log4j2.xml -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+```
+- 从webapp的WEB-INF/lib下移除所有日志库，如commons-logging*.jar, log4j*.jar等（已在%CATALINA_BASE%/lib/下包含）
+- 框架自动追踪tomcat调用filters和servlets，无需手工配置filter
 
 ### 其他应用服务器
 - 在应用服务器工作目录下建立logtrace目录，复制以下文件至logtrace目录：
 
 ```
-logtrace-*-jar-with-dependencies.jar (from logtrace\target\)
-logtrace.properties (from logagent\src\main\resources\)
-log4j2.xml (from tracespan\src\main\resources\)
+logtrace/target/logtrace-*-jar-with-dependencies.jar
+logagent/src/main/resources/logtrace.properties 
+tracespan/src/main/resources/log4j2.xml
 ```
 
 - 修改应用服务器启动脚本，在java之后添加启动参数：
 
-  *注：{ABSOLUTE PATH}修改为logtrace目录所在绝对路径； {VERSION}修改为实际版本号*
+  *注：{FULL PATH}修改为logtrace目录所在绝对路径； {VERSION}修改为实际版本号*
   
->  -javaagent:{ABSOLUTE PATH}/logtrace/logtrace-{VERSION}-jar-with-dependencies.jar={ABSOLUTE PATH}/logtrace/logtrace.properties -Dlog4j.configurationFile={ABSOLUTE PATH}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+>  -javaagent:{FULL PATH}/logtrace/logtrace-{VERSION}-jar-with-dependencies.jar=file:/{FULL PATH}/logtrace/logtrace.properties -Dlog4j.configurationFile=file:/{FULL PATH}/logtrace/log4j2.xml  -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
 
 - 参数说明
   - -javaagent  指定logtrace代理库jar文件（会加入classpath），jar文件后参数为logtrace.properties路径
@@ -118,8 +127,8 @@ log4j2.xml (from tracespan\src\main\resources\)
   - logtrace.timingThreshold 启用耗时记录的阈值
   
 - 参考配置
-  - 默认配置: logagent\src\main\resources\logtrace.properties
-  - 演示配置: demo\src\main\resources\logtrace.properties
+  - 默认配置: logagent/src/main/resources/logtrace.properties
+  - 演示配置: demo/src/main/resources/logtrace.properties
   
 ### log4j2.xml
   配置日志输出策略、文件及格式等
@@ -127,8 +136,8 @@ log4j2.xml (from tracespan\src\main\resources\)
 - 配置说明
 
   默认配置输出终端：Console, tracelog, applog. 默认等级WARN及以上输出至Console和applog.
-  - tracelog  输出跟踪框架日志，默认等级DEBUG.  日志文件：logs\logtrace.log
-  - applog  输出应用日志，默认等级WARN. 日志文件：logs\logapp.log
+  - tracelog  输出跟踪框架日志，默认等级DEBUG.  日志文件：logs/logtrace.log
+  - applog  输出应用日志，默认等级WARN. 日志文件：logs/logapp.log
   - 根据实际需要配置添加应用Logger，例如
   
 ```
@@ -139,12 +148,12 @@ log4j2.xml (from tracespan\src\main\resources\)
   注：System.out.println内容会自动转换为log以DEBUG等级输出至logapp
   
 - 参考配置
-  - 默认配置: tracespan\src\main\resources\log4j2.xml
-  - 演示配置: demo\src\main\resources\log4j2.xml
+  - 默认配置: tracespan/src/main/resources/log4j2.xml
+  - 演示配置: demo/src/main/resources/log4j2.xml
  
 - 日志文件
-  - logs\logtrace.log
-  - logs\logapp.log
+  - logs/logtrace.log
+  - logs/logapp.log
 
 - 日志输出格式
 
