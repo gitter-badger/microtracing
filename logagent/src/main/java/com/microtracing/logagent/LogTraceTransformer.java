@@ -26,20 +26,19 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.CtMethod;
+import javassist.ClassClassPath;
 import javassist.NotFoundException;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
 public class LogTraceTransformer  implements ClassFileTransformer{
-	//private static final org.slf4j.Logger logger =  org.slf4j.LoggerFactory.getLogger(ClassFileTransformer.class);
-	private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ClassFileTransformer.class.getName());
+	//private static final org.slf4j.Logger logger =  org.slf4j.LoggerFactory.getLogger(LogTraceTransformer.class);
+	private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(LogTraceTransformer.class.getName());
 			
 	private LogTraceConfig config;
 	
 	private List<ClassInjector> classInjectors = new ArrayList<ClassInjector>();
 	private List<CallInjector> callInjectors = new ArrayList<CallInjector>();
 	private List<MethodInjector> methodInjectors = new ArrayList<MethodInjector>();
-	
-	private List<String> injectedClasses = new ArrayList<String>();
 	
 	public LogTraceTransformer(LogTraceConfig config){
 		this.config = config;
@@ -133,7 +132,7 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 										injector.getMethodCallAfter(callClassName, callMethodName));
 
 		
-							//logger.finest(String.format("Inject method call  %s.%s in %s.%s \n%s", callClassName, callMethodName, className, methodName, wrap));
+							logger.finest(String.format("Inject method call  %s.%s in %s.%s \n%s", callClassName, callMethodName, className, methodName, wrap));
 							m.replace(wrap);
 						}
 					}
@@ -214,9 +213,10 @@ public class LogTraceTransformer  implements ClassFileTransformer{
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,byte[] classfileBuffer) throws IllegalClassFormatException {
         className = className.replace("/", ".");
-        if (!config.isNeedInject(className) || injectedClasses.contains(className)) {
+        if (!config.isNeedInject(className)) {
             return classfileBuffer;
         }
+		//logger.fine("class:"+className+" loader:"+loader+" ContextClassLoader:"+Thread.currentThread().getContextClassLoader().toString());
 		CtClass ctclass = null;
         try {
             ClassPool classPool = ClassPool.getDefault();
@@ -239,7 +239,6 @@ public class LogTraceTransformer  implements ClassFileTransformer{
 					interceptMethod(ctmethod, injector);
 				}
             }
-            injectedClasses.add(className);
             
             byte[] byteCode = ctclass.toBytecode();
             return byteCode;
