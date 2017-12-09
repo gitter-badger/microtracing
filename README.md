@@ -169,3 +169,6 @@ tracespan/src/main/resources/log4j2.xml
 
 ### Slf4j初始化失败
 检查classpath和WEB-INF/lib是否有其他slf4j实现库，进行清除。
+
+### java.lang.ClassNotFoundException
+CLASSPATH中存在重复jar文件或依赖jar文件分散在不同目录，由不同ClassLoader加载且顺序错误导致，清理JRE/lib,server/lib,webapp/WEB-INF/lib等目录下手工放置的jar文件，并参考tomcat部署方法进行重新部署。
