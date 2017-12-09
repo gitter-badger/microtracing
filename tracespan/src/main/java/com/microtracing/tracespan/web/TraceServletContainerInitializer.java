@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 @HandlesTypes({ TraceFilter.class }) 
 public class TraceServletContainerInitializer implements ServletContainerInitializer {
-	private static final Logger logger =  LoggerFactory.getLogger(TraceFilter.class);
+	private static final Logger logger =  LoggerFactory.getLogger(ServletContainerInitializer.class);
 
 	private static final String FILTER_MAPPING = "/*"; 
 	
